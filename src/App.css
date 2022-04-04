@@ -1,0 +1,116 @@
+:root {
+    --spacing: 8px;
+    --blue: #4c6aff;
+    --red: red;
+}
+
+@font-face {
+    font-family: pkmndp;
+    src: url("./pkmndp.otf");
+}
+body {
+    font-family: pkmndp;
+}
+
+@keyframes inputActivation {
+    0%, 99.999% {
+        background: gray;
+    }
+    100% {
+        background: lightgray;
+    }
+}
+
+.Input {
+    display: flex;
+    font-size: 24px;
+    height: 30px;
+    line-height: 30px;
+}
+.Input[data-active="true"] {
+    animation: inputActivation 0.1s linear;
+    animation-fill-mode: forwards;
+}
+.underline {
+    flex-grow: 1;
+    padding-top: 21px;
+}
+.line {
+    display: block;
+    height: 2px;
+    background: #BBBBBB;
+}
+.underline[data-side="left"] .line {
+    margin-right: var(--spacing);
+}
+.underline[data-side="right"] .line {
+    margin-left: var(--spacing);
+}
+.Input .user {
+    text-align: center;
+}
+.Input .action:first-child {
+    margin-left: var(--spacing);
+    margin-right: var(--spacing);
+    text-align: left;
+    color: var(--blue);
+}
+.Input .action:last-child {
+    margin-left: var(--spacing);
+    margin-right: var(--spacing);
+    text-align: right;
+    color: var(--red);
+}
+
+.Input .action {
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.Input[data-side="left"] .action:last-child {
+    visibility: hidden;
+}
+.Input[data-side="right"] .action:first-child {
+    visibility: hidden;
+}
+.Input[data-side="left"] .underline[data-side="right"] {
+    visibility: hidden;
+}
+.Input[data-side="right"] .underline[data-side="left"] {
+    visibility: hidden;
+}
+.Input[data-side="left"] .user {
+    color: var(--blue);
+}
+.Input[data-side="right"] .user {
+    color: var(--red);
+}
+
+body {
+    background: gray;
+    overflow: hidden;
+}
+
+.App {
+    background: white;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+.arrow {
+    height: 0.68em;
+    vertical-align: baseline;
+}
+.Input[data-side="left"] .arrow {
+    filter: invert(100%) invert(41%) sepia(45%) saturate(5617%) hue-rotate(220deg) brightness(101%) contrast(104%);
+}
+.Input[data-side="right"] .arrow {
+    filter: invert(100%) invert(12%) sepia(71%) saturate(7476%) hue-rotate(359deg) brightness(108%) contrast(115%);
+}
+
+.preload-imgs {
+    position: absolute;
+    opacity: 0.0;
+}
