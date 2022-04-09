@@ -13,13 +13,13 @@ const SPACING = 8
 function ButtonSet(props) {
     const buttons = props.buttons.map(function(button) {
         if(button === 'right') {
-            return <span><img className="arrow" src={rightArrow} /> </span>
+            return <span><img className="arrow" src={rightArrow} alt="RIGHT"/> </span>
         } else if(button === 'left') {
-            return <span><img className="arrow" src={leftArrow} /> </span>
+            return <span><img className="arrow" src={leftArrow} alt="LEFT" /> </span>
         } else if(button === 'up') {
-            return <span><img className="arrow" src={upArrow} /> </span>
+            return <span><img className="arrow" src={upArrow}  alt="UP"/> </span>
         } else if(button === 'down') {
-            return <span><img className="arrow" src={downArrow} /> </span>
+            return <span><img className="arrow" src={downArrow} alt="DOWN" /> </span>
         } else if(button === 'hold') {
             return '-'
         }
@@ -205,10 +205,10 @@ class App extends Component {
                     </div>
                 </div>
                 <div className="preload-imgs">
-                    <img src={upArrow} />
-                    <img src={downArrow} />
-                    <img src={leftArrow} />
-                    <img src={rightArrow} />
+                    <img src={upArrow} alt=""/>
+                    <img src={downArrow} alt="" />
+                    <img src={leftArrow} alt="" />
+                    <img src={rightArrow} alt="" />
                 </div>
             </div>
         )
