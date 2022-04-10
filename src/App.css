@@ -23,9 +23,9 @@ body {
 
 .Input {
     display: flex;
-    font-size: 24px;
-    height: 30px;
-    line-height: 30px;
+    font-size: 32px;
+    height: 40px;
+    line-height: 40px;
 }
 .Input[data-active="true"] {
     animation: inputActivation 0.1s linear;
@@ -33,7 +33,7 @@ body {
 }
 .underline {
     flex-grow: 1;
-    padding-top: 21px;
+    padding-top: 28px;
 }
 .line {
     display: block;

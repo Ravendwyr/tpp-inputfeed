@@ -7,19 +7,25 @@ import downArrow from './down90.png'
 import './App.css'
 
 const FRAME_DURATION = 1000 / 60
-const INPUT_HEIGHT = 30  // px
+const INPUT_HEIGHT = 40  // px
 const SPACING = 8
+
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+}
 
 function ButtonSet(props) {
     const buttons = props.buttons.map(function(button) {
         if(button === 'right') {
-            return <span><img className="arrow" src={rightArrow} alt="RIGHT"/> </span>
+            return <span><img className="arrow" src={rightArrow} /> </span>
         } else if(button === 'left') {
-            return <span><img className="arrow" src={leftArrow} alt="LEFT" /> </span>
+            return <span><img className="arrow" src={leftArrow} /> </span>
         } else if(button === 'up') {
-            return <span><img className="arrow" src={upArrow}  alt="UP"/> </span>
+            return <span><img className="arrow" src={upArrow} /> </span>
         } else if(button === 'down') {
-            return <span><img className="arrow" src={downArrow} alt="DOWN" /> </span>
+            return <span><img className="arrow" src={downArrow} /> </span>
         } else if(button === 'hold') {
             return '-'
         }
@@ -109,6 +115,16 @@ function findInputById(inputs, inputId) {
     }
 }
 
+function findInputRangeById(inputs, startInputId, endInputId) {
+    const result = []
+    for (let i = 0; i < inputs.length; i++) {
+        if(inputs[i].id >= startInputId && inputs[i].id < endInputId) {
+            result.push(inputs[i])
+        }
+    }
+    return result
+}
+
 class App extends Component {
     constructor(props) {
         super(props)
@@ -144,8 +160,10 @@ class App extends Component {
                 'pendingInputCount': this.state.pendingInputCount + 1
             })
         } else if(type === 'anarchy_input_start') {
+            //if(getRandomInt(0, 2) === 0) return  // test buggy core
             const newInputs = [...this.state.inputs]
             const input = findInputById(newInputs, params.id)
+            const inputRange = findInputRangeById(newInputs, this.state.activeInputId, params.id)
             if(input) {
                 input.active = true
                 input.frames = params.frames
@@ -165,9 +183,9 @@ class App extends Component {
                 this.setState({
                     'inputs': newInputs,
                     'activeInputId': input.id,
-                    'pendingInputCount': this.state.pendingInputCount - 1,
+                    'pendingInputCount': this.state.pendingInputCount - inputRange.length,
                     'completedInputCount': completedInputCount,
-                    'slidePosition': this.state.slidePosition + INPUT_HEIGHT,
+                    'slidePosition': this.state.slidePosition + (INPUT_HEIGHT * inputRange.length),
                     'slidePositionOffset': slidePositionOffset,
                     'slideSpeed': slideSpeed,
                     'culledInputCount': culledInputCount,
@@ -205,10 +223,10 @@ class App extends Component {
                     </div>
                 </div>
                 <div className="preload-imgs">
-                    <img src={upArrow} alt=""/>
-                    <img src={downArrow} alt="" />
-                    <img src={leftArrow} alt="" />
-                    <img src={rightArrow} alt="" />
+                    <img src={upArrow} />
+                    <img src={downArrow} />
+                    <img src={leftArrow} />
+                    <img src={rightArrow} />
                 </div>
             </div>
         )
