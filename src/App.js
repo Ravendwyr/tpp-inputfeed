@@ -7,8 +7,8 @@ import downArrow from './down90.png'
 import './App.css'
 
 const FRAME_DURATION = 1000 / 60
-const INPUT_HEIGHT = 40  // px
-const SPACING = 8
+const INPUT_HEIGHT = 50  // px
+const SPACING = 12
 
 function getRandomInt(min, max) {
     min = Math.ceil(min);
@@ -17,19 +17,19 @@ function getRandomInt(min, max) {
 }
 
 function ButtonSet(props) {
-    const buttons = props.buttons.map(function(button) {
+    const buttons = props.buttons.map(function(button, index) {
         if(button === 'right') {
-            return <span><img className="arrow" src={rightArrow} /> </span>
+            return <span key={index}><img className="arrow" src={rightArrow} /> </span>
         } else if(button === 'left') {
-            return <span><img className="arrow" src={leftArrow} /> </span>
+            return <span key={index}><img className="arrow" src={leftArrow} /> </span>
         } else if(button === 'up') {
-            return <span><img className="arrow" src={upArrow} /> </span>
+            return <span key={index}><img className="arrow" src={upArrow} /> </span>
         } else if(button === 'down') {
-            return <span><img className="arrow" src={downArrow} /> </span>
+            return <span key={index}><img className="arrow" src={downArrow} /> </span>
         } else if(button === 'hold') {
-            return '-'
+            return <span key={index}>- </span>
         }
-        return button
+        return <span key={index}>{button} </span>
     })
     return <div className="ButtonSet">
         {buttons}
@@ -125,24 +125,40 @@ function findInputRangeById(inputs, startInputId, endInputId) {
     return result
 }
 
+const INITIAL_INPUT_FEED_STATE = {
+    'connected': false,
+    'inputs': [],
+    'activeInputId': null,
+    'pendingInputCount': 0,
+    'completedInputCount': 0,
+    'slidePosition': 0,
+    'slidePositionOffset': window.innerHeight * (2 / 3),
+    'culledInputCount': 0,
+    'slideSpeed': 8000,
+}
+
 class App extends Component {
     constructor(props) {
         super(props)
-        this.state = {
-            'inputs': [],
-            'activeInputId': null,
-            'pendingInputCount': 0,
-            'completedInputCount': 0,
-            'slidePosition': 0,
-            'slidePositionOffset': window.innerHeight * (2 / 3),
-            'culledInputCount': 0,
-            'slideSpeed': 8000,
-        }
+        this.state = INITIAL_INPUT_FEED_STATE
         this.middleRef = React.createRef()
     }
     componentDidMount() {
+        this.connect()
+    }
+    connect() {
         const ws = new WebSocket("ws://localhost:5001/api")
+        ws.onopen = this.onOpen.bind(this)
+        ws.onclose = this.onClose.bind(this)
         ws.onmessage = this.onMessage.bind(this)
+    }
+    onOpen() {
+        const state = {...INITIAL_INPUT_FEED_STATE}
+        state.connected = true
+        this.setState(state)
+    }
+    onClose() {
+        this.setState({'connected': false}, this.connect)
     }
     onMessage(ev) {
         const msg = JSON.parse(ev.data)
@@ -168,10 +184,10 @@ class App extends Component {
                 input.active = true
                 input.frames = params.frames
                 input.sleep_frames = params.sleep_frames
-                let completedInputCount = this.state.completedInputCount + 1
+                let completedInputCount = this.state.completedInputCount + inputRange.length
                 let culledInputCount = this.state.culledInputCount
                 let slidePositionOffset = this.state.slidePositionOffset
-                if(completedInputCount > 30) {
+                while(completedInputCount > 30) {
                     newInputs.shift()
                     completedInputCount -= 1
                     culledInputCount += 1
@@ -214,6 +230,9 @@ class App extends Component {
         const style = {
             'transform': 'translateY(' + this.state.slidePosition * -1 + 'px)',
             'transition': 'transform ' + this.state.slideSpeed + 'ms linear'
+        }
+        if(!this.state.connected) {
+            return <div className="App"></div>
         }
         return (
             <div className="App">

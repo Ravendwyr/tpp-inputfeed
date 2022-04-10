@@ -1,7 +1,15 @@
 :root {
-    --spacing: 8px;
+    --spacing: 12px;
+    /*--blue: #63a5ff;
+    --blue-filter: invert(100%) invert(80%) sepia(48%) saturate(6188%) hue-rotate(190deg) brightness(101%) contrast(101%);
+    --red: #ff8484;
+    --red-filter: invert(100%) invert(69%) sepia(30%) saturate(1577%) hue-rotate(308deg) brightness(102%) contrast(112%);
+    --blue: #0000ff;
+    --red: #943a3a;*/
     --blue: #4c6aff;
     --red: red;
+    --blue-filter: invert(100%) invert(41%) sepia(45%) saturate(5617%) hue-rotate(220deg) brightness(101%) contrast(104%);
+    --red-filter: invert(100%) invert(12%) sepia(71%) saturate(7476%) hue-rotate(359deg) brightness(108%) contrast(115%);
 }
 
 @font-face {
@@ -23,9 +31,9 @@ body {
 
 .Input {
     display: flex;
-    font-size: 32px;
-    height: 40px;
-    line-height: 40px;
+    font-size: 40px;
+    height: 50px;
+    line-height: 50px;
 }
 .Input[data-active="true"] {
     animation: inputActivation 0.1s linear;
@@ -33,11 +41,11 @@ body {
 }
 .underline {
     flex-grow: 1;
-    padding-top: 28px;
+    padding-top: 35px;
 }
 .line {
     display: block;
-    height: 2px;
+    height: 3px;
     background: #BBBBBB;
 }
 .underline[data-side="left"] .line {
@@ -104,10 +112,10 @@ body {
     vertical-align: baseline;
 }
 .Input[data-side="left"] .arrow {
-    filter: invert(100%) invert(41%) sepia(45%) saturate(5617%) hue-rotate(220deg) brightness(101%) contrast(104%);
+    filter: var(--blue-filter);
 }
 .Input[data-side="right"] .arrow {
-    filter: invert(100%) invert(12%) sepia(71%) saturate(7476%) hue-rotate(359deg) brightness(108%) contrast(115%);
+    filter: var(--red-filter);
 }
 
 .preload-imgs {
