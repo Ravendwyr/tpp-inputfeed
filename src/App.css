@@ -4,7 +4,8 @@
     --blue-filter: invert(100%) invert(80%) sepia(48%) saturate(6188%) hue-rotate(190deg) brightness(101%) contrast(101%);
     --red: #ff8484;
     --red-filter: invert(100%) invert(69%) sepia(30%) saturate(1577%) hue-rotate(308deg) brightness(102%) contrast(112%);
-    --blue: #0000ff;
+    */
+    /*--blue: #0000ff;
     --red: #943a3a;*/
     --blue: #4c6aff;
     --red: red;
@@ -22,10 +23,10 @@ body {
 
 @keyframes inputActivation {
     0%, 99.999% {
-        background: gray;
+        background: #555555;
     }
     100% {
-        background: lightgray;
+        background: #222222;
     }
 }
 
@@ -101,6 +102,7 @@ body {
 
 .App {
     background: black;
+    color: white;
     position: absolute;
     left: 0;
     right: 0;
