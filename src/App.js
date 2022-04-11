@@ -18,13 +18,13 @@ function getRandomInt(min, max) {
 
 function ButtonSet(props) {
     const buttons = props.buttons.map(function(button, index) {
-        if(button === 'right') {
+        if(button === 'right' || button === 'e') {
             return <span key={index}><img className="arrow" src={rightArrow} /> </span>
-        } else if(button === 'left') {
+        } else if(button === 'left' || button === 'w') {
             return <span key={index}><img className="arrow" src={leftArrow} /> </span>
-        } else if(button === 'up') {
+        } else if(button === 'up' || button === 'n') {
             return <span key={index}><img className="arrow" src={upArrow} /> </span>
-        } else if(button === 'down') {
+        } else if(button === 'down' || button === 's') {
             return <span key={index}><img className="arrow" src={downArrow} /> </span>
         } else if(button === 'hold') {
             return <span key={index}>- </span>
@@ -166,8 +166,13 @@ class App extends Component {
     }
     processMessage(type, params) {
         if(type === 'new_anarchy_input') {
+            // de-duplicate inputs (possible core bug)
+            if(findInputById(this.state.inputs, params.id)) {
+                return
+            }
             const newInputs = [...this.state.inputs]
             params.active = false
+            params.complete = false
             params.frames = null
             params.sleep_frames = null
             newInputs.push(params)
@@ -179,6 +184,10 @@ class App extends Component {
             //if(getRandomInt(0, 2) === 0) return  // test buggy core
             const newInputs = [...this.state.inputs]
             const input = findInputById(newInputs, params.id)
+            // de-duplicate inputs (possible core bug)
+            if(input && input.active) {
+                return
+            }
             const inputRange = findInputRangeById(newInputs, this.state.activeInputId, params.id)
             if(input) {
                 input.active = true
@@ -210,8 +219,13 @@ class App extends Component {
         } else if(type === 'anarchy_input_stop') {
             const newInputs = [...this.state.inputs]
             const input = findInputById(newInputs, params.id)
+            // de-duplicate inputs (possible core bug)
+            if(input && input.complete) {
+                return
+            }
             if(input) {
                 input.active = false
+                input.complete = true
                 this.setState({'inputs': newInputs})
             }
         }
