@@ -18,13 +18,13 @@ function getRandomInt(min, max) {
 
 function ButtonSet(props) {
     const buttons = props.buttons.map(function(button, index) {
-        if(button === 'right' || button === 'e') {
+        if(button === 'right') {
             return <span key={index}><img className="arrow" src={rightArrow} /> </span>
-        } else if(button === 'left' || button === 'w') {
+        } else if(button === 'left') {
             return <span key={index}><img className="arrow" src={leftArrow} /> </span>
-        } else if(button === 'up' || button === 'n') {
+        } else if(button === 'up') {
             return <span key={index}><img className="arrow" src={upArrow} /> </span>
-        } else if(button === 'down' || button === 's') {
+        } else if(button === 'down') {
             return <span key={index}><img className="arrow" src={downArrow} /> </span>
         } else if(button === 'hold') {
             return <span key={index}>- </span>
