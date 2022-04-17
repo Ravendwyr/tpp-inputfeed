@@ -9,7 +9,9 @@ function createWindow() {
     width: 550,
     height: 640,
     webPreferences: {
-      nodeIntegration: true,
+      webSecurity: false,
+      backgroundThrottling: false,
+      nodeIntegration: true
     },
   });
 
@@ -21,9 +23,9 @@ function createWindow() {
       : `file://${path.join(__dirname, '../build/index.html')}`
   );
   // Open the DevTools.
-//   if (isDev) {
-//     win.webContents.openDevTools({ mode: 'detach' });
-//   }
+  //   if (isDev) {
+  //     win.webContents.openDevTools({ mode: 'detach' });
+  //   }
 }
 
 // This method will be called when Electron has finished
@@ -35,9 +37,9 @@ app.whenReady().then(createWindow);
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
-//   if (process.platform !== 'darwin') {
-    app.quit();
-//   }
+  //   if (process.platform !== 'darwin') {
+  app.quit();
+  //   }
 });
 
 app.on('activate', () => {
