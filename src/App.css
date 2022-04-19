@@ -1,8 +1,9 @@
 :root {
     --spacing: 12px;
-    /*--blue: #63a5ff;
-    --blue-filter: invert(100%) invert(80%) sepia(48%) saturate(6188%) hue-rotate(190deg) brightness(101%) contrast(101%);
+    /*
+    --blue: #63a5ff;
     --red: #ff8484;
+    --blue-filter: invert(100%) invert(80%) sepia(48%) saturate(6188%) hue-rotate(190deg) brightness(101%) contrast(101%);
     --red-filter: invert(100%) invert(69%) sepia(30%) saturate(1577%) hue-rotate(308deg) brightness(102%) contrast(112%);
     */
     /*--blue: #0000ff;
@@ -96,13 +97,12 @@ body {
 }
 
 body {
-    background: gray;
     overflow: hidden;
+    background: black;
+    color: white;
 }
 
 .App {
-    background: black;
-    color: white;
     position: absolute;
     left: 0;
     right: 0;
