@@ -137,7 +137,7 @@ const INITIAL_INPUT_FEED_STATE = {
     'slideSpeed': 8000,
 }
 
-class App extends Component {
+class InputFeed extends Component {
     constructor(props) {
         super(props)
         this.state = INITIAL_INPUT_FEED_STATE
@@ -256,13 +256,113 @@ class App extends Component {
                     </div>
                 </div>
                 <div className="preload-imgs">
-                    <img src={upArrow} />
-                    <img src={downArrow} />
-                    <img src={leftArrow} />
-                    <img src={rightArrow} />
+                    <img alt="" src={upArrow} />
+                    <img alt="" src={downArrow} />
+                    <img alt="" src={leftArrow} />
+                    <img alt="" src={rightArrow} />
                 </div>
             </div>
         )
+    }
+}
+
+
+function pad(n) {
+    return n<10 ? '0'+n : n
+}
+
+function ISODateString(d) {
+     return d.getUTCFullYear()+'-'
+          + pad(d.getUTCMonth()+1)+'-'
+          + pad(d.getUTCDate())+'T'
+          + pad(d.getUTCHours())+':'
+          + pad(d.getUTCMinutes())+':'
+          + pad(d.getUTCSeconds())+'Z'
+}
+
+
+function secondsToDurationStr(seconds) {
+    let prefix = ''
+    if(seconds < 0) {
+        prefix = '-'
+        seconds = Math.abs(seconds)
+    }
+    const s = seconds % 60
+    const m = Math.floor(seconds / 60) % 60
+    const h = Math.floor(seconds / 60 / 60) % 24
+    const d = Math.floor(seconds / 60 / 60 / 24)
+    return prefix + d + 'd' + pad(h) + 'h' + pad(m) + 'm' + pad(s) + 's'
+}
+
+
+class ClockAndTimer extends Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            'now': new Date(),
+            'scaleX': 1.0,
+            'scaleY': 1.0,
+        }
+        this.innerRef = React.createRef()
+        this.updateScale = this.updateScale.bind(this)
+        this.updateTime = this.updateTime.bind(this)
+        this.startRunEventFired = false
+    }
+    updateScale() {
+        const width = this.innerRef.current.offsetWidth
+        const height = this.innerRef.current.offsetHeight
+        const availableWidth = window.innerWidth
+        const availableHeight = window.innerHeight
+        const scaleX = availableWidth / width
+        const scaleY = availableHeight / height
+        if(scaleX !== this.state.scaleX || scaleY !== this.state.scaleY) {
+            this.setState({'scaleX': scaleX, 'scaleY': scaleY})
+        }
+    }
+    updateTime() {
+        const now = new Date()
+        this.setState({'now': now}, this.updateScale)
+        if(!this.startRunEventFired && now > this.props.startDate) {
+            this.startRunEventFired = true
+            console.log('start run event fired')
+            fetch('http://localhost:5010/start_run', {mode: 'no-cors'})
+        }
+    }
+    componentDidMount() {
+        this.updateScale()
+        window.addEventListener('resize', this.updateScale)
+        setInterval(this.updateTime, 1000)
+    }
+    getStr() {
+        const secondsFromStart = Math.floor((this.state.now - this.props.startDate) / 1000)
+        return ISODateString(this.state.now) + ' ' + secondsToDurationStr(secondsFromStart)
+    }
+    render() {
+        const s = this.getStr()
+        const style = {
+            'transform': 'scale(' + this.state.scaleX + ', ' + this.state.scaleY + ')',
+            'transformOrigin': 'top left'
+        }
+        return <div className="ClockAndTimer" style={style}>
+            <span className="inner" ref={this.innerRef}>{s}</span>
+        </div>
+    }
+}
+
+
+class App extends Component {
+    render() {
+        if(window.location.pathname === '/clockandtimer') {
+            let startDateStr = window.location.hash.substr(1)
+            let startDate
+            if(startDateStr) {
+                startDate = Date.parse(startDateStr)
+            } else {
+                startDate = new Date()
+            }
+            return <ClockAndTimer startDate={startDate} />
+        }
+        return <InputFeed />
     }
 }
 
