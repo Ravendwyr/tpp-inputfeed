@@ -124,3 +124,9 @@ body {
     position: absolute;
     opacity: 0.0;
 }
+
+
+.BigCountdown {
+    font-size: 48px;
+    text-align: center;
+}
