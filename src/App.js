@@ -10,22 +10,22 @@ const FRAME_DURATION = 1000 / 60
 const INPUT_HEIGHT = 50  // px
 const SPACING = 12
 
-function getRandomInt(min, max) {
+/*function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
-}
+}*/
 
 function ButtonSet(props) {
     const buttons = props.buttons.map(function(button, index) {
         if(button === 'right') {
-            return <span key={index}><img className="arrow" src={rightArrow} /> </span>
+            return <span key={index}><img alt="" className="arrow" src={rightArrow} /> </span>
         } else if(button === 'left') {
-            return <span key={index}><img className="arrow" src={leftArrow} /> </span>
+            return <span key={index}><img alt="" className="arrow" src={leftArrow} /> </span>
         } else if(button === 'up') {
-            return <span key={index}><img className="arrow" src={upArrow} /> </span>
+            return <span key={index}><img alt="" className="arrow" src={upArrow} /> </span>
         } else if(button === 'down') {
-            return <span key={index}><img className="arrow" src={downArrow} /> </span>
+            return <span key={index}><img alt="" className="arrow" src={downArrow} /> </span>
         } else if(button === 'hold') {
             return <span key={index}>- </span>
         }
@@ -350,6 +350,32 @@ class ClockAndTimer extends Component {
 }
 
 
+class BigCountdown extends Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            'now': new Date(),
+        }
+        this.updateNow = this.updateNow.bind(this)
+    }
+    componentDidMount() {
+        setInterval(this.updateNow, 100)
+    }
+    updateNow() {
+        this.setState({'now': new Date()})
+    }
+    getStr() {
+        const secondsFromStart = Math.floor((this.state.now - this.props.startDate) / 1000)
+        return secondsToDurationStr(secondsFromStart).replace('-', '')
+    }
+    render() {
+        return <div className="BigCountdown">
+            <span class="side">{this.props.side}</span> in {this.getStr()}
+        </div>
+    }
+}
+
+
 class App extends Component {
     render() {
         if(window.location.pathname === '/clockandtimer') {
@@ -361,6 +387,12 @@ class App extends Component {
                 startDate = new Date()
             }
             return <ClockAndTimer startDate={startDate} />
+        } else if(window.location.pathname === '/bigcountdown') {
+            const splitHash = window.location.hash.substr(1).split('+')
+            let startDateStr = splitHash[0]
+            let startDate = Date.parse(startDateStr)
+            const side = decodeURI(splitHash[1])
+            return <BigCountdown startDate={startDate} side={side} />
         }
         return <InputFeed />
     }
