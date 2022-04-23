@@ -366,11 +366,14 @@ class BigCountdown extends Component {
     }
     getStr() {
         const secondsFromStart = Math.floor((this.state.now - this.props.startDate) / 1000)
-        return secondsToDurationStr(secondsFromStart).replace('-', '')
+        if(secondsFromStart >= 0) {
+            return ''
+        }
+        return this.props.side + ' in ' + secondsToDurationStr(secondsFromStart).replace('-', '')
     }
     render() {
         return <div className="BigCountdown">
-            <span class="side">{this.props.side}</span> in {this.getStr()}
+            {this.getStr()}
         </div>
     }
 }
