@@ -92,7 +92,7 @@ class Input extends Component {
             </div>
             <div className="user" ref={this.userRef} style={nameStyle}>
                 <div className="user-inner" ref={this.userInnerRef}>
-                    {this.props.user.twitch_display_name}
+                    {this.props.user.name}
                 </div>
             </div>
             <div className="underline" data-side="right">
