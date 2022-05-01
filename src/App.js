@@ -239,6 +239,7 @@ class InputFeed extends Component {
                 side={input.side}
                 user={input.user}
                 button_set={input.button_set}
+                frames={input.frames}
             />
         })
         const style = {
