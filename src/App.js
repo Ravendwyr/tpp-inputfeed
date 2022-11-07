@@ -10,11 +10,6 @@ const FRAME_DURATION = 1000 / 60
 const INPUT_HEIGHT = 50  // px
 const SPACING = 12
 
-/*function getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
-}*/
 
 function ButtonSet(props) {
     const buttons = props.buttons.map(function(button, index) {
@@ -77,22 +72,32 @@ class Input extends Component {
             'transformOrigin': 'center left',
             'width': this.state.actionWidth
         }
+        let leftAction = null
+        let leftLine
+        if(this.props.side) {
+            leftAction = <div className="action" ref={this.actionRef}>
+                <div className="action-inner" ref={this.actionInnerRef} style={actionStyle}>
+                    <ButtonSet buttons={this.props.button_set} />
+                </div>
+            </div>
+            leftLine = <div className="underline" data-side="left">
+                <div className="line"></div>
+            </div>
+        }
         return <div
                 className="Input"
                 data-active={this.props.active}
                 data-side={this.props.side}
                 style={{animationDuration: (this.props.frames * FRAME_DURATION) + 'ms'}}>
-            <div className="action" ref={this.actionRef}>
-                <div className="action-inner" ref={this.actionInnerRef} style={actionStyle}>
-                    <ButtonSet buttons={this.props.button_set} />
-                </div>
-            </div>
-            <div className="underline" data-side="left">
-                <div className="line"></div>
-            </div>
+            {leftAction}
+            {leftLine}
             <div className="user" ref={this.userRef} style={nameStyle}>
                 <div className="user-inner" ref={this.userInnerRef}>
-                    {this.props.user.name}
+                    <User
+                        user={this.props.user}
+                        runBadgeNumber={this.props.runBadgeNumber}
+                        pkmnBadgeNumber={this.props.pkmnBadgeNumber}
+                    />
                 </div>
             </div>
             <div className="underline" data-side="right">
@@ -105,6 +110,30 @@ class Input extends Component {
             </div>
         </div>
     }
+}
+
+function User(props) {
+    const runBadgeNumber = props.runBadgeNumber || 1
+    const runBadge = <span
+            className="run-badge"
+            data-number={runBadgeNumber}
+            data-hide={props.runBadgeNumber === null}
+    >
+        {runBadgeNumber}
+    </span>
+    const pkmnBadgeNumber = props.pkmnBadgeNumber || 1
+    const pkmnBadgeUrl = "/pkmn-badges/" + String(pkmnBadgeNumber).padStart(3, '0') + ".png"
+    const pkmnBadge = <img
+            alt=""
+            className="pkmn-badge"
+            src={pkmnBadgeUrl}
+            data-hide={props.pkmnBadgeNumber === null}
+    />
+    return <div className="User">
+        {pkmnBadge}
+        {runBadge}
+        <span className="name">{props.user.name}</span>
+    </div>
 }
 
 function findInputById(inputs, inputId) {
@@ -193,6 +222,8 @@ class InputFeed extends Component {
                 input.active = true
                 input.frames = params.frames
                 input.sleep_frames = params.sleep_frames
+                input.run_badge_number = params.run_badge_number
+                input.pkmn_badge_number = params.pkmn_badge_number
                 let completedInputCount = this.state.completedInputCount + inputRange.length
                 let culledInputCount = this.state.culledInputCount
                 let slidePositionOffset = this.state.slidePositionOffset
@@ -236,10 +267,11 @@ class InputFeed extends Component {
             return <Input
                 active={self.state.activeInputId === input.id}
                 key={input.id}
-                side={input.side}
                 user={input.user}
-                button_set={input.button_set}
                 frames={input.frames}
+                button_set={input.button_set}
+                runBadgeNumber={input.run_badge_number}
+                pkmnBadgeNumber={input.pkmn_badge_number}
             />
         })
         const style = {
