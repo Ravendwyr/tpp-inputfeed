@@ -113,17 +113,17 @@ class Input extends Component {
 }
 
 function User(props) {
-    const runBadgeNumber = props.runBadgeNumber || 1
-    const runBadge = <span
+    const runBadgeNumber = props.runBadgeNumber || false
+    const runBadge = runBadgeNumber && <span
             className="run-badge"
             data-number={runBadgeNumber}
             data-hide={props.runBadgeNumber === null}
     >
         {runBadgeNumber}
     </span>
-    const pkmnBadgeNumber = props.pkmnBadgeNumber || 1
+    const pkmnBadgeNumber = props.pkmnBadgeNumber || false
     const pkmnBadgeUrl = "/pkmn-badges/" + String(pkmnBadgeNumber).padStart(3, '0') + ".png"
-    const pkmnBadge = <img
+    const pkmnBadge = pkmnBadgeNumber && <img
             alt=""
             className="pkmn-badge"
             src={pkmnBadgeUrl}
