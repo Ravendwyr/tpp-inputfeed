@@ -412,7 +412,7 @@ runs: 1:red, 2:crystal, 3:emerald, 4:randomized firered, 5:platinum, 6:randomize
 .run-badge[data-number="55"] {
     color: white;
     background: transparent;
-    background: url("2fire-green.jpg");
+    background: url("2fire-green.png");
 }
 .run-badge[data-number="56"] {color: #AD0021; background: #F3C69D;}
 .run-badge[data-number="57"] {color: white; background: #c8e8f9; border-color: #026eb7}
