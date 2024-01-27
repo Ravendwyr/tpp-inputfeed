@@ -37,7 +37,7 @@ body {
 
 @keyframes retroInputActivation {
     0%, 99.999% {
-        background: #fff;
+        background: black;
     }
     100% {
         background: #888;
@@ -228,6 +228,12 @@ body {
     padding-left: calc(1px * var(--multiplier));
 }
 
+.InputFeed[data-theme="retro"] {
+    font-size: 48px;
+    height: 48px;
+    line-height: 48px;
+}
+
 /* Input feed lowercase in retro mode */
 .InputFeed[data-theme="retro"] .Input .action {
     text-transform: lowercase;
@@ -239,12 +245,11 @@ body {
 
 .InputFeed[data-theme="retro"] .Input[data-active="true"] {
     animation-name: retroInputActivation;
-    color: black;
+    filter: invert(100%);
 }
 .InputFeed[data-theme="retro"] .Input[data-active="true"] .User,
 .InputFeed[data-theme="retro"] .Input[data-active="true"] .action {
-    filter: none;
-    color: black;
+    color: white;
 }
 
 
