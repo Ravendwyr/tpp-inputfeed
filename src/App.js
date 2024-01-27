@@ -15,16 +15,26 @@ const SPACING = 12
 
 function ButtonSet(props) {
     const buttons = props.buttons.map(function(button, index) {
-        if(button === 'right') {
-            return <span key={index}><img alt="" className="arrow" src={rightArrow} /> </span>
-        } else if(button === 'left') {
-            return <span key={index}><img alt="" className="arrow" src={leftArrow} /> </span>
-        } else if(button === 'up') {
-            return <span key={index}><img alt="" className="arrow" src={upArrow} /> </span>
-        } else if(button === 'down') {
-            return <span key={index}><img alt="" className="arrow" src={downArrow} /> </span>
-        } else if(button === 'hold') {
-            return <span key={index}>- </span>
+        if(props.theme !== "retro") {
+            if(button === 'right') {
+                return <span key={index}>
+                    <img alt="" className="arrow" src={rightArrow} /> 
+                </span>
+            } else if(button === 'left') {
+                return <span key={index}>
+                    <img alt="" className="arrow" src={leftArrow} /> 
+                </span>
+            } else if(button === 'up') {
+                return <span key={index}>
+                    <img alt="" className="arrow" src={upArrow} /> 
+                </span>
+            } else if(button === 'down') {
+                return <span key={index}>
+                    <img alt="" className="arrow" src={downArrow} /> 
+                </span>
+            } else if(button === 'hold') {
+                return <span key={index}>- </span>
+            }
         }
         return <span key={index}>{button} </span>
     })
@@ -79,7 +89,10 @@ class Input extends Component {
         if(this.props.side) {
             leftAction = <div className="action" ref={this.actionRef}>
                 <div className="action-inner" ref={this.actionInnerRef} style={actionStyle}>
-                    <ButtonSet buttons={this.props.button_set} />
+                    <ButtonSet 
+                        theme={this.props.theme}
+                        buttons={this.props.button_set}
+                    />
                 </div>
             </div>
             leftLine = <div className="underline" data-side="left">
@@ -108,7 +121,10 @@ class Input extends Component {
             </div>
             <div className="action">
                 <div className="action-inner" ref={this.actionInnerRef} style={actionStyle}>
-                    <ButtonSet buttons={this.props.button_set} />
+                    <ButtonSet
+                        theme={this.props.theme}
+                        buttons={this.props.button_set}
+                    />
                 </div>
             </div>
         </div>
