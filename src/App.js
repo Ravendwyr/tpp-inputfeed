@@ -1,9 +1,11 @@
+import FontFaceObserver from 'fontfaceobserver';
+
 import React, { Component } from 'react'
 
-import rightArrow from './right90.png'
-import leftArrow from './left90.png'
-import upArrow from './up90.png'
-import downArrow from './down90.png'
+import rightArrow from './images/right90.png'
+import leftArrow from './images/left90.png'
+import upArrow from './images/up90.png'
+import downArrow from './images/down90.png'
 import './App.css'
 
 const FRAME_DURATION = 1000 / 60
@@ -95,6 +97,7 @@ class Input extends Component {
                 <div className="user-inner" ref={this.userInnerRef}>
                     <User
                         user={this.props.user}
+                        theme={this.props.theme}
                         runBadgeNumber={this.props.runBadgeNumber}
                         pkmnBadgeNumber={this.props.pkmnBadgeNumber}
                     />
@@ -113,22 +116,32 @@ class Input extends Component {
 }
 
 function User(props) {
-    const runBadgeNumber = props.runBadgeNumber || false
-    const runBadge = runBadgeNumber && <span
-            className="run-badge"
-            data-number={runBadgeNumber}
-            data-hide={props.runBadgeNumber === null}
-    >
-        {runBadgeNumber}
-    </span>
-    const pkmnBadgeNumber = props.pkmnBadgeNumber || false
-    const pkmnBadgeUrl = "/pkmn-badges/" + String(pkmnBadgeNumber).padStart(3, '0') + ".png"
-    const pkmnBadge = pkmnBadgeNumber && <img
-            alt=""
-            className="pkmn-badge"
-            src={pkmnBadgeUrl}
-            data-hide={props.pkmnBadgeNumber === null}
-    />
+    let runBadge;
+    if(props.theme === "retro") {
+        runBadge = null;
+    } else {
+        const runBadgeNumber = props.runBadgeNumber || 1;
+        runBadge = <span
+                    className="run-badge"
+                    data-number={runBadgeNumber}
+                    data-hide={props.runBadgeNumber === null}
+            >
+                {runBadgeNumber}
+            </span>;
+    }
+    let pkmnBadge;
+    if(props.theme === "retro") {
+        pkmnBadge = null;
+    } else {
+        const pkmnBadgeNumber = props.pkmnBadgeNumber || 1
+        const pkmnBadgeUrl = "/pkmn-badges/" + String(pkmnBadgeNumber).padStart(3, '0') + ".png"
+        pkmnBadge = <img
+                alt=""
+                className="pkmn-badge"
+                src={pkmnBadgeUrl}
+                data-hide={props.pkmnBadgeNumber === null}
+        />
+    }
     return <div className="User">
         {pkmnBadge}
         {runBadge}
@@ -265,6 +278,7 @@ class InputFeed extends Component {
         let self = this
         const inputComponents = this.state.inputs.map(function(input) {
             return <Input
+                theme={self.props.theme}
                 active={self.state.activeInputId === input.id}
                 key={input.id}
                 user={input.user}
@@ -279,10 +293,10 @@ class InputFeed extends Component {
             'transition': 'transform ' + this.state.slideSpeed + 'ms linear'
         }
         if(!this.state.connected) {
-            return <div className="App"></div>
+            return <div className="InputFeed"></div>
         }
         return (
-            <div className="App">
+            <div className="InputFeed" data-theme={this.props.theme}>
                 <div style={style} ref={this.middleRef}>
                     <div style={{'transform': 'translateY(' + this.state.slidePositionOffset + 'px)'}}>
                         {inputComponents}
@@ -314,124 +328,319 @@ function ISODateString(d) {
 }
 
 
-function secondsToDurationStr(seconds) {
-    let prefix = ''
+function secondsToDurationStr(seconds, spacing) {
+    let prefix = "";
     if(seconds < 0) {
-        prefix = '-'
-        seconds = Math.abs(seconds)
+        prefix = "-";
+        seconds = Math.abs(seconds);
     }
-    const s = seconds % 60
-    const m = Math.floor(seconds / 60) % 60
-    const h = Math.floor(seconds / 60 / 60) % 24
-    const d = Math.floor(seconds / 60 / 60 / 24)
-    return prefix + d + 'd' + pad(h) + 'h' + pad(m) + 'm' + pad(s) + 's'
+    const s = seconds % 60;
+    const m = Math.floor(seconds / 60) % 60;
+    const h = Math.floor(seconds / 60 / 60) % 24;
+    const d = Math.floor(seconds / 60 / 60 / 24);
+
+    let p = "";
+    if(spacing) {
+        p = " ";
+    }
+
+    return prefix + pad(d) + "d" + p + pad(h) + "h" + p + pad(m) + "m" + p 
+        + pad(s) + "s";
 }
 
 
-class ClockAndTimer extends Component {
+class OverlayComponent extends Component {
     constructor(props) {
-        super(props)
+        super(props);
         this.state = {
-            'now': new Date(),
-            'scaleX': 1.0,
-            'scaleY': 1.0,
-        }
-        this.innerRef = React.createRef()
-        this.updateScale = this.updateScale.bind(this)
-        this.updateTime = this.updateTime.bind(this)
-        this.startRunEventFired = false
+            "scaleX": 1.0,
+            "scaleY": 1.0,
+        };
+        this.innerRef = React.createRef();
+        this.updateScale = this.updateScale.bind(this);
     }
     updateScale() {
-        const width = this.innerRef.current.offsetWidth
-        const height = this.innerRef.current.offsetHeight
-        const availableWidth = window.innerWidth
-        const availableHeight = window.innerHeight
-        const scaleX = availableWidth / width
-        const scaleY = availableHeight / height
-        if(scaleX !== this.state.scaleX || scaleY !== this.state.scaleY) {
-            this.setState({'scaleX': scaleX, 'scaleY': scaleY})
+        if(!this.props.autoscale) {
+            return;
         }
-    }
-    updateTime() {
-        const now = new Date()
-        this.setState({'now': now}, this.updateScale)
-        if(!this.startRunEventFired && now > this.props.startDate) {
-            this.startRunEventFired = true
-            console.log('start run event fired')
-            fetch('http://localhost:5010/start_run', {mode: 'no-cors'})
+        const width = this.innerRef.current.offsetWidth;
+        const height = this.innerRef.current.offsetHeight;
+        const availableWidth = this.props.width || window.innerWidth;
+        const availableHeight = this.props.height || window.innerHeight;
+        const scaleX = availableWidth / width;
+        const scaleY = availableHeight / height;
+        if(scaleX !== this.state.scaleX || scaleY !== this.state.scaleY) {
+            this.setState({"scaleX": scaleX, "scaleY": scaleY});
         }
     }
     componentDidMount() {
-        this.updateScale()
-        window.addEventListener('resize', this.updateScale)
-        setInterval(this.updateTime, 1000)
+        this.updateScale();
+        window.addEventListener("resize", this.updateScale);
+    }
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.updateScale);
+    }
+    getStyle() {
+        return {
+            "transform": "scale(" + this.state.scaleX + ", " + this.state.scaleY + ")",
+            "transformOrigin": "top left",
+        };
+    }
+}
+            
+
+
+class Clock extends OverlayComponent {
+    constructor(props) {
+        super(props);
+        this.state.now = new Date();
+        this.updateTime = this.updateTime.bind(this);
+        this.updateTimeInterval = null;
+    }
+    updateTime() {
+        const now = new Date();
+        this.setState({"now": now}, this.updateScale);
+    }
+    componentDidMount() {
+        super.componentDidMount();
+        this.updateTimeInterval = setInterval(this.updateTime, 1000);
+    }
+    componentWillUnmount() {
+        super.componentWillUnmount();
+        clearInterval(this.updateTimeInterval);
     }
     getStr() {
-        const secondsFromStart = Math.floor((this.state.now - this.props.startDate) / 1000)
-        return ISODateString(this.state.now) + ' ' + secondsToDurationStr(secondsFromStart)
+        let s = ISODateString(this.state.now);
+        if(this.props.theme === "retro") {
+            s = s.replace("Z", "").replace("T", " ");
+        }
+        return s;
     }
     render() {
         const s = this.getStr()
-        const style = {
-            'transform': 'scale(' + this.state.scaleX + ', ' + this.state.scaleY + ')',
-            'transformOrigin': 'top left'
-        }
-        return <div className="ClockAndTimer" style={style}>
+        const style = super.getStyle();
+        return <div
+                className="Clock"
+                style={style}
+                data-theme={this.props.theme}
+        >
             <span className="inner" ref={this.innerRef}>{s}</span>
         </div>
     }
 }
 
 
-class BigCountdown extends Component {
+class RetroTitle extends OverlayComponent {
+    render() {
+        const style = super.getStyle();
+        return <article
+                className="RetroTitle"
+                style={style}
+                data-theme={this.props.theme}
+            >
+            <span className="inner" ref={this.innerRef}>
+                <div className="title-line-1">
+                    <span className="word-1">Twitch</span>
+                    &nbsp;
+                    <span className="word-2">Plays</span>
+                </div>
+                <div className="title-line-2">Pokemon</div>
+            </span>
+        </article>
+    }
+}
+
+class Timer extends OverlayComponent {
     constructor(props) {
-        super(props)
-        this.state = {
-            'now': new Date(),
+        super(props);
+        this.state.now = new Date();
+        this.updateTime = this.updateTime.bind(this);
+        this.updateTimeInterval = null;
+        this.startRunEventFired = false;
+    }
+    updateTime() {
+        const now = new Date();
+        this.setState({"now": now}, this.updateScale);
+        if(!this.startRunEventFired && now > this.props.startDate) {
+            this.startRunEventFired = true;
+            console.log("start run event fired");
+            fetch("http://localhost:5010/start_run", {mode: "no-cors"});
         }
-        this.updateNow = this.updateNow.bind(this)
     }
     componentDidMount() {
-        setInterval(this.updateNow, 100)
+        super.componentDidMount();
+        this.updateTimeInterval = setInterval(this.updateTime, 1000);
     }
-    updateNow() {
-        this.setState({'now': new Date()})
+    componentWillUnmount() {
+        clearInterval(this.updateTimeInterval);
+        super.componentWillUnmount();
     }
     getStr() {
-        const secondsFromStart = Math.floor((this.state.now - this.props.startDate) / 1000)
-        if(secondsFromStart >= 0) {
-            return ''
-        }
-        return this.props.side + ' in ' + secondsToDurationStr(secondsFromStart).replace('-', '')
+        const secondsFromStart = Math.floor(
+            (this.state.now - this.props.runStartDate) / 1000
+        );
+        return secondsToDurationStr(
+            secondsFromStart,
+            this.props.timerSpacing,
+        );
     }
     render() {
-        return <div className="BigCountdown">
-            {this.getStr()}
+        const s = this.getStr()
+        const style = super.getStyle();
+        return <div
+                className="Timer"
+                style={style}
+                data-theme={this.props.theme}
+        >
+            <span className="inner" ref={this.innerRef}>{s}</span>
         </div>
     }
 }
 
 
-class App extends Component {
+class BigCountdown extends OverlayComponent {
+    constructor(props) {
+        super(props);
+        this.state.now = new Date();
+        this.updateNow = this.updateNow.bind(this);
+        this.updateInterval = null;
+    }
+    componentDidMount() {
+        super.componentDidMount();
+        this.updateInterval = setInterval(this.updateNow, 100);
+    }
+    componentWillUnmount() {
+        clearInterval(this.updateInterval);
+    }
+    updateNow() {
+        this.setState({"now": new Date()})
+    }
     render() {
-        if(window.location.pathname === '/clockandtimer') {
-            let startDateStr = window.location.hash.substr(1)
-            let startDate
-            if(startDateStr) {
-                startDate = Date.parse(startDateStr)
-            } else {
-                startDate = new Date()
-            }
-            return <ClockAndTimer startDate={startDate} />
-        } else if(window.location.pathname === '/bigcountdown') {
-            const splitHash = window.location.hash.substr(1).split('+')
-            let startDateStr = splitHash[0]
-            let startDate = Date.parse(startDateStr)
-            const side = decodeURI(splitHash[1])
-            return <BigCountdown startDate={startDate} side={side} />
+        const secondsFromStart = Math.floor(
+            (this.state.now - this.props.date) / 1000
+        );
+        if(secondsFromStart >= 0) {
+            return "";
         }
-        return <InputFeed />
+        let s = secondsToDurationStr(secondsFromStart).replace("-", "");
+        const style = super.getStyle();
+
+        return <div
+                className="BigCountdown"
+                style={style}
+                data-theme={this.props.theme}
+            >
+            <span className="inner" ref={this.innerRef}>
+                {this.props.label}{s}
+            </span>
+        </div>
     }
 }
 
+class App extends Component {
+    state = { fontLoaded: false };
+    _isMounted = false;
+  
+    componentDidMount() {
+        const fontName = "gen1";
+        this._isMounted = true;
+        const font = new FontFaceObserver(fontName);
+  
+        font.load().then(() => {
+            if (this._isMounted) {
+                this.setState({fontLoaded: true});
+            }
+        }).catch(error => {
+            if (this._isMounted) {
+                console.error('Font loading failed:', error);
+            }
+        });
+    }
+  
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
+  
+    render() {
+        if (!this.state.fontLoaded) {
+            return null;
+        }
+        const params = new URLSearchParams(window.location.search);
+
+        const autoscale = params.get("autoscale") === "true";
+        const theme = params.get("theme") || null;
+
+        const timerSpacing = params.get("timer_spacing") === "true";
+        const countdownLabel = params.get("countdown_label") || null;
+        let countdownDate = params.get("countdown_date") || null;
+        if(countdownDate) {
+            countdownDate = Date.parse(countdownDate);
+        }
+
+        let runStartDate = params.get("run_start_date") || null;
+        if(runStartDate) {
+            runStartDate = Date.parse(runStartDate);
+        }
+
+        if(window.location.pathname === '/clock') {
+            return <Clock
+                theme={theme}
+                autoscale={autoscale}
+            />
+        } else if(window.location.pathname === '/timer') {
+            return <Timer
+                theme={theme}
+                autoscale={autoscale}
+                startDate={runStartDate}
+            />
+        } else if(window.location.pathname === '/countdown') {
+            return <BigCountdown
+                theme={theme}
+                autoscale={autoscale}
+                label={countdownLabel}
+                date={countdownDate}
+            />
+        } else if(window.location.pathname === '/input_feed') {
+            return <InputFeed
+                theme={theme}
+            />
+        } else if(window.location.pathname !== "/") {
+            return <div>Unexpected URL path</div>
+        }
+
+
+        return <div className="OverlayTest">
+            <InputFeed theme={"retro"} />
+            <Clock
+                    width="540"
+                    height="80"
+                    autoscale={false}
+                    theme={"retro"}
+            />
+            <Timer
+                    width="540"
+                    height="80"
+                    autoscale={false}
+                    theme={"retro"}
+                    timerSpacing={true}
+                    runStartDate={Date.parse("2024-02-12T05:57:22.000Z")}
+            />
+            <RetroTitle
+                width="540"
+                height="100"
+                autoscale={true}
+                theme={"retro"}
+            />
+            <BigCountdown
+                label={"Pokemon Red in "}
+                date={Date.parse("2024-02-12T05:57:22.000Z")}
+                width="540"
+                height="80"
+                autoscale={false}
+                theme={"retro"}
+            />
+        </div>
+    }
+}
+  
 export default App

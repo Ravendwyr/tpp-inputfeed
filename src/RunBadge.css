@@ -1,0 +1,269 @@
+
+/*
+runs: 1:red, 2:crystal, 3:emerald, 4:randomized firered, 5:platinum, 6:randomized heartgold, 7:black, 8:blaze black 2, 9:x,
+      10:omega ruby, 11: anniversary red, 12: moemon & touhoumon, 13: randomized alpha sapphire, 14: colosseum, 15: XD,
+      16: anniversary crystal, 17: brown, 18: randomized platinum, 19: prism, 20: sun, 21: waning moon, 22: chatty yellow,
+      23: blazed glazed, 24: randomized white 2, 25: pyrite, 26: theta emerald ex, 27: ultra sun, 28: dual red blue
+      29: storm silver, 30: bronze, 31: randomized y, 32: flora sky, 33: fused crystal, 34: burning red, 35: volt white
+      36: randomized colosseum, 37: xg, 38: trihard emerald, 39: randomized ultra moon, 40: sword, 41: gauntlet red
+      42: gauntlet crystal, 43: gauntlet emerald, 44: gauntlet platinum, 45: gauntlet blaze black 2, 46: gauntlet x,
+      47: sirius, 48: rising ruby, 49: vega, 50: chatty crystal, 51: renegade platinum, 52: rgb race, 53: randoblack
+      54: randoblack2, 55: blazing emerald, 56: spaceworld reforged, 57: brilliant diamond, 58: legends arceus
+      59: rando chatty crystal, 60: dual red blue 2
+ */
+
+ 
+.run-badge {
+    display: inline-block;
+    background: gray;
+    color: white;
+    width: 32px;
+    height: 32px;
+    font-size: 20px;
+    line-height: 33px;
+    vertical-align: middle;
+    border-radius: 32px;
+    font-family: sans-serif;
+    position: relative;
+    top: -4px;
+    margin-right: 12px;
+    border: 2px solid white;
+    background-size: 100%;
+    text-shadow:
+       -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+         1px 1px 0 #000;
+}
+
+@keyframes prism-rainbow {
+    0% {
+        filter: hue-rotate(0deg);
+        -webkit-filter: hue-rotate(0deg);
+    }
+    100% {
+        filter: hue-rotate(360deg);
+        -webkit-filter: hue-rotate(360deg);
+    }
+}
+
+@keyframes slide-background {
+    0% {
+        background-position: 0% 0
+    }
+    100% {
+        background-position: 300% 0
+    }
+}
+
+@keyframes slide-background-y {
+    0% {
+        background-position-y: 0%
+    }
+    100% {
+        background-position-y: 100%
+    }
+}
+
+
+.run-badge[data-number="1"]  {color: white; background: white;}
+.run-badge[data-number="2"]  {color: white; background: #a983ca;}
+.run-badge[data-number="3"]  {color: white; background: #20c66e;}
+.run-badge[data-number="4"]  {color: white; background: #ff9935;}
+.run-badge[data-number="5"]  {color: white; background: gray;}
+.run-badge[data-number="6"]  {color: white; background: #DAA520;}
+.run-badge[data-number="7"]  {color: white; background: black;}
+.run-badge[data-number="8"]  {color: #abe9f4; background: black;}
+.run-badge[data-number="9"]  {color: white; background: #00609C;}
+.run-badge[data-number="10"] {color: white; background: #d1171a;}
+.run-badge[data-number="11"] {
+    color: black;
+    background: white;
+    text-shadow:
+       -1px -1px 0 white,
+        1px -1px 0 white,
+        -1px 1px 0 white,
+         1px 1px 0 white;
+}
+.run-badge[data-number="12"] {color: white; background: pink;}
+.run-badge[data-number="13"] {color: white; background: #0193d2;}
+.run-badge[data-number="14"] {
+    color: black;
+    background: red;
+    text-shadow:
+       -1px -1px 0 white,
+        1px -1px 0 white,
+        -1px 1px 0 white,
+         1px 1px 0 white;
+}
+.run-badge[data-number="15"] {
+    color: black;
+    background: #7d7db5;
+    text-shadow:
+       -1px -1px 0 white,
+        1px -1px 0 white,
+        -1px 1px 0 white,
+         1px 1px 0 white;
+}
+.run-badge[data-number="16"] {color: white; background: purple;}
+.run-badge[data-number="17"] {color: white; background: #752424;}
+.run-badge[data-number="18"] {color: white; background: #B0B1AE;}
+.run-badge[data-number="19"] {color: white; background: red; animation: prism-rainbow 10s linear 0s infinite}
+.run-badge[data-number="20"] {color: white; background: #ff7000;}
+.run-badge[data-number="21"] {color: white; background: #2020a0;}
+.run-badge[data-number="22"] {
+    color: black;
+    background: yellow;
+    text-shadow:
+       -1px -1px 0 white,
+        1px -1px 0 white,
+        -1px 1px 0 white,
+         1px 1px 0 white;
+}
+.run-badge[data-number="23"] {color: white; background: #F97DD4;}
+.run-badge[data-number="24"] {color: white; background: #fff6ed;}
+.run-badge[data-number="25"] {color: white; background: #9F7F57;}
+.run-badge[data-number="26"] {color: white; background: green;}
+.run-badge[data-number="27"] {color: #F9DFA6; background: #34373B;}
+.run-badge[data-number="28"] {
+    color: white;
+    background: repeating-linear-gradient(270deg, #117bfa, #fe0102, #117bfa);
+    background-size: 300%;
+    animation: slide-background 20s infinite linear reverse}
+.run-badge[data-number="29"] {color: #c3e1ff; background: linear-gradient(#dfdfdf, #b5bdc5); border: 1px solid #278fe5}
+.run-badge[data-number="30"] {color: white; background: linear-gradient(#AD7238, #B88656);}
+.run-badge[data-number="31"] {color: white; background: #D22445;}
+.run-badge[data-number="32"] {color: #ee71a7; background: #71eeb8;}
+.run-badge[data-number="33"] {color: red;background: linear-gradient(-90deg, #2989cc 0%, #ffffff 100%);}
+.run-badge[data-number="34"] {
+    color: white;
+    background: url("2fire.jpg");
+    background-position: center;
+    animation: slide-background-y 20s infinite linear reverse;
+}
+.run-badge[data-number="35"] {color: white; background: #EDF6FF;}
+.run-badge[data-number="36"] {
+    color: black;
+    background: #DE0605;
+    text-shadow:
+       -1px -1px 0 white,
+        1px -1px 0 white,
+        -1px 1px 0 white,
+         1px 1px 0 white;
+}
+.run-badge[data-number="37"] {
+    color: black;
+    background: #E23B69;
+    border-color: #B79C97;
+    text-shadow:
+       -1px -1px 0 white,
+        1px -1px 0 white,
+        -1px 1px 0 white,
+         1px 1px 0 white;
+}
+.run-badge[data-number="38"] {
+    color: #F8C800;
+    background: #07825B;
+    text-shadow: -1px -1px 0 #6A2400, 1px -1px 0 #6A2400, -1px 1px 0 #6A2400, 1px 1px 0 #6A2400
+}
+.run-badge[data-number="39"] {color: #B3DDF0; background: #34373B;}
+.run-badge[data-number="40"] {
+    color: black;
+    background: #00A0E9;
+    text-shadow:
+       -1px -1px 0 white,
+        1px -1px 0 white,
+        -1px 1px 0 white,
+         1px 1px 0 white;
+}
+.run-badge[data-number="41"] {
+    color: white;
+    background: #00609C radial-gradient(
+        ellipse at bottom,
+        rgba(255,0,0,0) 0%,
+        rgba(255,0,0,0) 41%,
+        rgba(255,0,0,1) 45%,
+        rgba(255,0,0,0) 70%) no-repeat bottom right;
+}
+.run-badge[data-number="42"] {
+    color: white;
+    background: #00609C radial-gradient(
+        ellipse at bottom,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0) 41%,
+        rgba(255, 255, 255, 1) 45%,
+        rgba(255, 255, 255, 0) 70%) no-repeat bottom right;
+}
+.run-badge[data-number="43"] {
+    color: white;
+    background: #00609C radial-gradient(
+        ellipse at bottom,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0) 41%,
+        rgba(255, 255, 255, 1) 45%,
+        rgba(255, 255, 255, 0) 70%) no-repeat bottom right;
+}
+.run-badge[data-number="44"] {
+    color: white;
+    background: #00609C radial-gradient(
+        ellipse at bottom,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0) 41%,
+        rgba(255, 255, 255, 1) 45%,
+        rgba(255, 255, 255, 0) 70%) no-repeat bottom right;
+}
+.run-badge[data-number="45"] {
+    color: #abe9f4;
+    background: #00609C radial-gradient(
+        ellipse at bottom,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0) 41%,
+        rgba(255, 255, 255, 1) 45%,
+        rgba(255, 255, 255, 0) 70%) no-repeat bottom right;
+}
+.run-badge[data-number="46"] {
+    color: white;
+    background-size: 200% 100%;
+    background: #00609C radial-gradient(
+        ellipse at bottom,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0) 41%,
+        rgba(255, 255, 255, 1) 45%,
+        rgba(255, 255, 255, 0) 70%) no-repeat bottom right;
+}
+.run-badge[data-number="47"] {color: #00B0A8; background-color: #052744}
+.run-badge[data-number="48"] {color: white; background: #d1171a;border-color: #F47B33}
+.run-badge[data-number="49"] {color: white; background: #CECE08;border-color: #087D24}
+.run-badge[data-number="50"] {color: #DAA520; background: #8178C5;}
+.run-badge[data-number="51"] {color: white; background: gray;border-color: #C41018}
+.run-badge[data-number="52"] {
+    color: black;
+    background: #CEFF94;
+    background: url("green checkerboard.png");
+    background-size: 50%;
+    background-position: top center;
+    text-shadow:
+       -1px -1px 0 white,
+        1px -1px 0 white,
+        -1px 1px 0 white,
+         1px 1px 0 white;
+}
+.run-badge[data-number="53"] {color: #CC9BA2; background: black;}
+.run-badge[data-number="54"] {color: #0658CC; background: black;}
+.run-badge[data-number="55"] {
+    color: white;
+    background: transparent;
+    background: url("2fire-green.jpg");
+}
+.run-badge[data-number="56"] {color: #AD0021; background: #F3C69D;}
+.run-badge[data-number="57"] {color: white; background: #c8e8f9; border-color: #026eb7}
+.run-badge[data-number="58"] {
+    color: #88CA99;
+    background: #EBDEC9;
+    text-shadow: -1px -1px 0 #007EB5, 1px -1px 0 #007EB5, -1px 1px 0 #007EB5, 1px 1px 0 #007EB5;
+}
+.run-badge[data-number="59"] {color: #DAA520; background: linear-gradient(-90deg, #2989cc 0%, #ffffff 100%);}
+.run-badge[data-number="60"] {
+    color: white;
+    background: repeating-linear-gradient(270deg, #225C93 0%, #225C93 33%, #718D3F 67%, #718D3F 100%);
+}
