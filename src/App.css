@@ -35,6 +35,15 @@ body {
     }
 }
 
+@keyframes retroInputActivation {
+    0%, 99.999% {
+        background: #fff;
+    }
+    100% {
+        background: #888;
+    }
+}
+
 .Input {
     display: flex;
     font-size: 40px;
@@ -226,6 +235,16 @@ body {
 /* Input feed lowercase in retro mode */
 .InputFeed[data-theme="retro"] .line {
     visibility: hidden;
+}
+
+.InputFeed[data-theme="retro"] .Input[data-active="true"] {
+    animation-name: retroInputActivation;
+    color: black;
+}
+.InputFeed[data-theme="retro"] .Input[data-active="true"] .User,
+.InputFeed[data-theme="retro"] .Input[data-active="true"] .action {
+    filter: none;
+    color: black;
 }
 
 
