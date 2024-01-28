@@ -545,8 +545,12 @@ class BigCountdown extends OverlayComponent {
 class App extends Component {
     state = { fontLoaded: false };
     _isMounted = false;
+    params = new URLSearchParams(window.location.search);
 
     componentDidMount() {
+        const theme = this.params.get("theme");
+        if (theme)
+            document.querySelector(':root').setAttribute("data-theme", theme);
         const fontName = "gen1";
         this._isMounted = true;
         const font = new FontFaceObserver(fontName);
@@ -570,7 +574,7 @@ class App extends Component {
         if (!this.state.fontLoaded) {
             return null;
         }
-        const params = new URLSearchParams(window.location.search);
+        const params = this.params;
 
         const autoscale = params.get("autoscale") === "true";
         const theme = params.get("theme") || null;
@@ -610,7 +614,7 @@ class App extends Component {
                 theme={theme}
             />
         } else if (window.location.pathname !== "/") {
-            return <div>Unexpected URL path</div>
+            return <div>Unexpected URL path. Valid paths are /clock /timer /countdown and /input_feed.</div>
         }
 
 

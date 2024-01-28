@@ -20,7 +20,8 @@
 }
 @font-face {
     font-family: gen1;
-    src: url("./fonts/pokered-extended-regular.woff2");
+    src: url("./fonts/pokered-modern-regular.woff2");
+    ascent-override: 102.5%;
 }
 body {
     font-family: pkmndp;
@@ -253,7 +254,7 @@ body {
 }
 
 .InputFeed[data-theme="retro"] .Input {
-    flex-basis: row nowrap;
+    flex-flow: row nowrap;
     justify-content: stretch;
 }
 .InputFeed[data-theme="retro"] .Input .user {
