@@ -9,56 +9,55 @@ import downArrow from './images/down90.png'
 import './App.css'
 import './RunBadge.css'
 
+const CORE_ADDRESS = "192.168.1.6"; //"localhost";
+const WS_PORT = 5001;
+const API_PORT = 5010;
+
 const FRAME_DURATION = 1000 / 60
 const INPUT_HEIGHT = 50  // px
 const SPACING = 12
 
-
 function ButtonSet(props) {
-    const buttons = props.buttons.map(function(button, index) {
-        if(props.theme !== "retro") {
-            if(button === 'right') {
-                return <span key={index}>
-                    <img alt="" className="arrow" src={rightArrow} /> 
-                </span>
-            } else if(button === 'left') {
-                return <span key={index}>
-                    <img alt="" className="arrow" src={leftArrow} /> 
-                </span>
-            } else if(button === 'up') {
-                return <span key={index}>
-                    <img alt="" className="arrow" src={upArrow} /> 
-                </span>
-            } else if(button === 'down') {
-                return <span key={index}>
-                    <img alt="" className="arrow" src={downArrow} /> 
-                </span>
-            } else if(button === 'hold') {
-                return <span key={index}>- </span>
+    const buttons = props.buttons.map(function (button, index) {
+        const wrap = inner => <span key={index}>{inner} </span>;
+        if (props.theme !== "retro") {
+            switch (button) {
+                case "right":
+                    return wrap(<img alt="e" className="arrow" src={rightArrow} />);
+                case "left":
+                    return wrap(<img alt="w" className="arrow" src={leftArrow} />);
+                case "up":
+                    return wrap(<img alt="n" className="arrow" src={upArrow} />);
+                case "down":
+                    return wrap(<img alt="s" className="arrow" src={downArrow} />);
+                case "hold":
+                    return wrap("-");
             }
         }
-        return <span key={index}>{button} </span>
-    })
+        return wrap(button);
+    });
     return <div className="ButtonSet">
         {buttons}
-    </div>
+    </div>;
 }
 
 class Input extends Component {
     constructor(props) {
-        super(props)
+        super(props);
         this.state = {
             'nameScale': 1,
             'nameWidth': null,
             'actionScale': 1,
             'actionWidth': null,
-        }
-        this.userRef = React.createRef()
-        this.userInnerRef = React.createRef()
-        this.actionRef = React.createRef()
-        this.actionInnerRef = React.createRef()
+        };
+        this.userRef = React.createRef();
+        this.userInnerRef = React.createRef();
+        this.actionRef = React.createRef();
+        this.actionInnerRef = React.createRef();
     }
     componentDidMount() {
+        if (this.props.theme === "retro")
+            return;
         const fullNameWidth = this.userInnerRef.current.offsetWidth
         const fullActionWidth = this.actionInnerRef.current.offsetWidth
         const availableWidth = window.innerWidth
@@ -74,101 +73,88 @@ class Input extends Component {
             'actionWidth': newActionWidth
         })
     }
+    jsFixWidth(scale, width) {
+        if (this.props.theme == "retro")
+            return {};
+        return {
+            'transform': 'scaleX(' + scale + ')',
+            'transformOrigin': 'center left',
+            'width': width
+        };
+    }
+    renderName() {
+        if (this.props.theme === "retro")
+            return <div className="user">{this.props.user.name}</div>;
+
+        return <div className="user" ref={this.userRef} style={this.jsFixWidth(this.state.nameScale, this.state.nameWidth)}>
+            <div className="user-inner" ref={this.userInnerRef}>
+                <User
+                    user={this.props.user}
+                    theme={this.props.theme}
+                    runBadgeNumber={this.props.runBadgeNumber}
+                    pkmnBadgeNumber={this.props.pkmnBadgeNumber}
+                />
+            </div>
+        </div>;
+    }
+    renderUnderline(side) {
+        return <div className="underline" data-side={side || "right"}>
+            <div className="line"></div>
+        </div>;
+    }
+    renderAction() {
+        return <div className="action" ref={this.actionRef}>
+            <div className="action-inner" ref={this.actionInnerRef} style={this.jsFixWidth(this.state.actionScale, this.state.actionWidth)}>
+                <ButtonSet
+                    theme={this.props.theme}
+                    buttons={this.props.button_set}
+                />
+            </div>
+        </div>;
+    }
     render() {
-        const nameStyle = {
-            'transform': 'scaleX(' + this.state.nameScale + ')',
-            'transformOrigin': 'center left',
-            'width': this.state.nameWidth
-        }
-        const actionStyle = {
-            'transform': 'scaleX(' + this.state.actionScale + ')',
-            'transformOrigin': 'center left',
-            'width': this.state.actionWidth
-        }
-        let leftAction = null
-        let leftLine
-        if(this.props.side) {
-            leftAction = <div className="action" ref={this.actionRef}>
-                <div className="action-inner" ref={this.actionInnerRef} style={actionStyle}>
-                    <ButtonSet 
-                        theme={this.props.theme}
-                        buttons={this.props.button_set}
-                    />
-                </div>
-            </div>
-            leftLine = <div className="underline" data-side="left">
-                <div className="line"></div>
-            </div>
-        }
         return <div
-                className="Input"
-                data-active={this.props.active}
-                data-side={this.props.side}
-                style={{animationDuration: (this.props.frames * FRAME_DURATION) + 'ms'}}>
-            {leftAction}
-            {leftLine}
-            <div className="user" ref={this.userRef} style={nameStyle}>
-                <div className="user-inner" ref={this.userInnerRef}>
-                    <User
-                        user={this.props.user}
-                        theme={this.props.theme}
-                        runBadgeNumber={this.props.runBadgeNumber}
-                        pkmnBadgeNumber={this.props.pkmnBadgeNumber}
-                    />
-                </div>
-            </div>
-            <div className="underline" data-side="right">
-                <div className="line"></div>
-            </div>
-            <div className="action">
-                <div className="action-inner" ref={this.actionInnerRef} style={actionStyle}>
-                    <ButtonSet
-                        theme={this.props.theme}
-                        buttons={this.props.button_set}
-                    />
-                </div>
-            </div>
+            className="Input"
+            data-active={this.props.active}
+            data-side={this.props.side}
+            style={{ animationDuration: (this.props.frames * FRAME_DURATION) + 'ms' }}>
+            {!!this.props.side && this.renderAction()}
+            {!!this.props.side && this.renderUnderline("left")}
+            {this.renderName()}
+            {this.renderUnderline("right")}
+            {this.renderAction()}
         </div>
     }
 }
 
 function User(props) {
-    let runBadge;
-    if(props.theme === "retro") {
-        runBadge = null;
-    } else {
-        const runBadgeNumber = props.runBadgeNumber || 1;
-        runBadge = <span
-                    className="run-badge"
-                    data-number={runBadgeNumber}
-                    data-hide={props.runBadgeNumber === null}
-            >
-                {runBadgeNumber}
-            </span>;
-    }
-    let pkmnBadge;
-    if(props.theme === "retro") {
-        pkmnBadge = null;
-    } else {
-        const pkmnBadgeNumber = props.pkmnBadgeNumber || 1
-        const pkmnBadgeUrl = "/pkmn-badges/" + String(pkmnBadgeNumber).padStart(3, '0') + ".png"
-        pkmnBadge = <img
-                alt=""
-                className="pkmn-badge"
-                src={pkmnBadgeUrl}
-                data-hide={props.pkmnBadgeNumber === null}
-        />
-    }
+    const retroTheme = props.theme == 'retro';
+
+    const runBadgeNumber = props.runBadgeNumber || 1;
+    const pkmnBadgeNumber = props.pkmnBadgeNumber || 1
+    const pkmnBadgeUrl = "/pkmn-badges/" + String(pkmnBadgeNumber).padStart(3, '0') + ".png"
+
     return <div className="User">
-        {pkmnBadge}
-        {runBadge}
+        {!retroTheme && <img
+            alt=""
+            className="pkmn-badge"
+            src={pkmnBadgeUrl}
+            data-hide={props.pkmnBadgeNumber === null}
+        />}
+        {!retroTheme && <span
+            className="run-badge"
+            data-number={runBadgeNumber}
+            data-hide={props.runBadgeNumber === null}
+        >
+            {runBadgeNumber}
+        </span>}
         <span className="name">{props.user.name}</span>
     </div>
 }
 
 function findInputById(inputs, inputId) {
     for (let i = 0; i < inputs.length; i++) {
-        if(inputs[i].id === inputId) {
+        if (inputs[i].id === inputId) {
             return inputs[i]
         }
     }
@@ -177,7 +163,7 @@ function findInputById(inputs, inputId) {
 function findInputRangeById(inputs, startInputId, endInputId) {
     const result = []
     for (let i = 0; i < inputs.length; i++) {
-        if(inputs[i].id >= startInputId && inputs[i].id < endInputId) {
+        if (inputs[i].id >= startInputId && inputs[i].id < endInputId) {
             result.push(inputs[i])
         }
     }
@@ -206,27 +192,27 @@ class InputFeed extends Component {
         this.connect()
     }
     connect() {
-        const ws = new WebSocket("ws://localhost:5001/api")
+        const ws = new WebSocket(`ws://${CORE_ADDRESS}:${WS_PORT}/api`)
         ws.onopen = this.onOpen.bind(this)
         ws.onclose = this.onClose.bind(this)
         ws.onmessage = this.onMessage.bind(this)
     }
     onOpen() {
-        const state = {...INITIAL_INPUT_FEED_STATE}
+        const state = { ...INITIAL_INPUT_FEED_STATE }
         state.connected = true
         this.setState(state)
     }
     onClose() {
-        this.setState({'connected': false}, this.connect)
+        this.setState({ 'connected': false }, this.connect)
     }
     onMessage(ev) {
         const msg = JSON.parse(ev.data)
         this.processMessage(msg.type, msg.extra_parameters)
     }
     processMessage(type, params) {
-        if(type === 'new_anarchy_input') {
+        if (type === 'new_anarchy_input') {
             // de-duplicate inputs (possible core bug)
-            if(findInputById(this.state.inputs, params.id)) {
+            if (findInputById(this.state.inputs, params.id)) {
                 return
             }
             const newInputs = [...this.state.inputs]
@@ -239,16 +225,16 @@ class InputFeed extends Component {
                 'inputs': newInputs,
                 'pendingInputCount': this.state.pendingInputCount + 1
             })
-        } else if(type === 'anarchy_input_start') {
+        } else if (type === 'anarchy_input_start') {
             //if(getRandomInt(0, 2) === 0) return  // test buggy core
             const newInputs = [...this.state.inputs]
             const input = findInputById(newInputs, params.id)
             // de-duplicate inputs (possible core bug)
-            if(input && input.active) {
+            if (input && input.active) {
                 return
             }
             const inputRange = findInputRangeById(newInputs, this.state.activeInputId, params.id)
-            if(input) {
+            if (input) {
                 input.active = true
                 input.frames = params.frames
                 input.sleep_frames = params.sleep_frames
@@ -257,7 +243,7 @@ class InputFeed extends Component {
                 let completedInputCount = this.state.completedInputCount + inputRange.length
                 let culledInputCount = this.state.culledInputCount
                 let slidePositionOffset = this.state.slidePositionOffset
-                while(completedInputCount > 30) {
+                while (completedInputCount > 30) {
                     newInputs.shift()
                     completedInputCount -= 1
                     culledInputCount += 1
@@ -277,23 +263,23 @@ class InputFeed extends Component {
                     'culledInputCount': culledInputCount,
                 })
             }
-        } else if(type === 'anarchy_input_stop') {
+        } else if (type === 'anarchy_input_stop') {
             const newInputs = [...this.state.inputs]
             const input = findInputById(newInputs, params.id)
             // de-duplicate inputs (possible core bug)
-            if(input && input.complete) {
+            if (input && input.complete) {
                 return
             }
-            if(input) {
+            if (input) {
                 input.active = false
                 input.complete = true
-                this.setState({'inputs': newInputs})
+                this.setState({ 'inputs': newInputs })
             }
         }
     }
     render() {
         let self = this
-        const inputComponents = this.state.inputs.map(function(input) {
+        const inputComponents = this.state.inputs.map(function (input) {
             return <Input
                 theme={self.props.theme}
                 active={self.state.activeInputId === input.id}
@@ -309,13 +295,13 @@ class InputFeed extends Component {
             'transform': 'translateY(' + this.state.slidePosition * -1 + 'px)',
             'transition': 'transform ' + this.state.slideSpeed + 'ms linear'
         }
-        if(!this.state.connected) {
+        if (!this.state.connected) {
             return <div className="InputFeed"></div>
         }
         return (
             <div className="InputFeed" data-theme={this.props.theme}>
                 <div style={style} ref={this.middleRef}>
-                    <div style={{'transform': 'translateY(' + this.state.slidePositionOffset + 'px)'}}>
+                    <div style={{ 'transform': 'translateY(' + this.state.slidePositionOffset + 'px)' }}>
                         {inputComponents}
                     </div>
                 </div>
@@ -332,22 +318,22 @@ class InputFeed extends Component {
 
 
 function pad(n) {
-    return n<10 ? '0'+n : n
+    return n < 10 ? '0' + n : n
 }
 
 function ISODateString(d) {
-     return d.getUTCFullYear()+'-'
-          + pad(d.getUTCMonth()+1)+'-'
-          + pad(d.getUTCDate())+'T'
-          + pad(d.getUTCHours())+':'
-          + pad(d.getUTCMinutes())+':'
-          + pad(d.getUTCSeconds())+'Z'
+    return d.getUTCFullYear() + '-'
+        + pad(d.getUTCMonth() + 1) + '-'
+        + pad(d.getUTCDate()) + 'T'
+        + pad(d.getUTCHours()) + ':'
+        + pad(d.getUTCMinutes()) + ':'
+        + pad(d.getUTCSeconds()) + 'Z'
 }
 
 
 function secondsToDurationStr(seconds, spacing) {
     let prefix = "";
-    if(seconds < 0) {
+    if (seconds < 0) {
         prefix = "-";
         seconds = Math.abs(seconds);
     }
@@ -357,11 +343,11 @@ function secondsToDurationStr(seconds, spacing) {
     const d = Math.floor(seconds / 60 / 60 / 24);
 
     let p = "";
-    if(spacing) {
+    if (spacing) {
         p = " ";
     }
 
-    return prefix + pad(d) + "d" + p + pad(h) + "h" + p + pad(m) + "m" + p 
+    return prefix + pad(d) + "d" + p + pad(h) + "h" + p + pad(m) + "m" + p
         + pad(s) + "s";
 }
 
@@ -377,7 +363,7 @@ class OverlayComponent extends Component {
         this.updateScale = this.updateScale.bind(this);
     }
     updateScale() {
-        if(!this.props.autoscale) {
+        if (!this.props.autoscale) {
             return;
         }
         const width = this.innerRef.current.offsetWidth;
@@ -386,8 +372,8 @@ class OverlayComponent extends Component {
         const availableHeight = this.props.height || window.innerHeight;
         const scaleX = availableWidth / width;
         const scaleY = availableHeight / height;
-        if(scaleX !== this.state.scaleX || scaleY !== this.state.scaleY) {
-            this.setState({"scaleX": scaleX, "scaleY": scaleY});
+        if (scaleX !== this.state.scaleX || scaleY !== this.state.scaleY) {
+            this.setState({ "scaleX": scaleX, "scaleY": scaleY });
         }
     }
     componentDidMount() {
@@ -404,7 +390,7 @@ class OverlayComponent extends Component {
         };
     }
 }
-            
+
 
 
 class Clock extends OverlayComponent {
@@ -416,7 +402,7 @@ class Clock extends OverlayComponent {
     }
     updateTime() {
         const now = new Date();
-        this.setState({"now": now}, this.updateScale);
+        this.setState({ "now": now }, this.updateScale);
     }
     componentDidMount() {
         super.componentDidMount();
@@ -428,7 +414,7 @@ class Clock extends OverlayComponent {
     }
     getStr() {
         let s = ISODateString(this.state.now);
-        if(this.props.theme === "retro") {
+        if (this.props.theme === "retro") {
             s = s.replace("Z", "").replace("T", " ");
         }
         return s;
@@ -437,9 +423,9 @@ class Clock extends OverlayComponent {
         const s = this.getStr()
         const style = super.getStyle();
         return <div
-                className="Clock"
-                style={style}
-                data-theme={this.props.theme}
+            className="Clock"
+            style={style}
+            data-theme={this.props.theme}
         >
             <span className="inner" ref={this.innerRef}>{s}</span>
         </div>
@@ -451,10 +437,10 @@ class RetroTitle extends OverlayComponent {
     render() {
         const style = super.getStyle();
         return <article
-                className="RetroTitle"
-                style={style}
-                data-theme={this.props.theme}
-            >
+            className="RetroTitle"
+            style={style}
+            data-theme={this.props.theme}
+        >
             <span className="inner" ref={this.innerRef}>
                 <div className="title-line-1">
                     <span className="word-1">Twitch</span>
@@ -477,11 +463,11 @@ class Timer extends OverlayComponent {
     }
     updateTime() {
         const now = new Date();
-        this.setState({"now": now}, this.updateScale);
-        if(!this.startRunEventFired && now > this.props.startDate) {
+        this.setState({ "now": now }, this.updateScale);
+        if (!this.startRunEventFired && now > this.props.startDate) {
             this.startRunEventFired = true;
             console.log("start run event fired");
-            fetch("http://localhost:5010/start_run", {mode: "no-cors"});
+            fetch(`http://${CORE_ADDRESS}:${API_PORT}/start_run`, { mode: "no-cors" });
         }
     }
     componentDidMount() {
@@ -505,9 +491,9 @@ class Timer extends OverlayComponent {
         const s = this.getStr()
         const style = super.getStyle();
         return <div
-                className="Timer"
-                style={style}
-                data-theme={this.props.theme}
+            className="Timer"
+            style={style}
+            data-theme={this.props.theme}
         >
             <span className="inner" ref={this.innerRef}>{s}</span>
         </div>
@@ -530,23 +516,23 @@ class BigCountdown extends OverlayComponent {
         clearInterval(this.updateInterval);
     }
     updateNow() {
-        this.setState({"now": new Date()})
+        this.setState({ "now": new Date() })
     }
     render() {
         const secondsFromStart = Math.floor(
             (this.state.now - this.props.date) / 1000
         );
-        if(secondsFromStart >= 0) {
+        if (secondsFromStart >= 0) {
             return "";
         }
         let s = secondsToDurationStr(secondsFromStart).replace("-", "");
         const style = super.getStyle();
 
         return <div
-                className="BigCountdown"
-                style={style}
-                data-theme={this.props.theme}
-            >
+            className="BigCountdown"
+            style={style}
+            data-theme={this.props.theme}
+        >
             <span className="inner" ref={this.innerRef}>
                 {this.props.label}{s}
             </span>
@@ -557,15 +543,15 @@ class BigCountdown extends OverlayComponent {
 class App extends Component {
     state = { fontLoaded: false };
     _isMounted = false;
-  
+
     componentDidMount() {
         const fontName = "gen1";
         this._isMounted = true;
         const font = new FontFaceObserver(fontName);
-  
+
         font.load().then(() => {
             if (this._isMounted) {
-                this.setState({fontLoaded: true});
+                this.setState({ fontLoaded: true });
             }
         }).catch(error => {
             if (this._isMounted) {
@@ -573,11 +559,11 @@ class App extends Component {
             }
         });
     }
-  
+
     componentWillUnmount() {
         this._isMounted = false;
     }
-  
+
     render() {
         if (!this.state.fontLoaded) {
             return null;
@@ -590,38 +576,38 @@ class App extends Component {
         const timerSpacing = params.get("timer_spacing") === "true";
         const countdownLabel = params.get("countdown_label") || null;
         let countdownDate = params.get("countdown_date") || null;
-        if(countdownDate) {
+        if (countdownDate) {
             countdownDate = Date.parse(countdownDate);
         }
 
         let runStartDate = params.get("run_start_date") || null;
-        if(runStartDate) {
+        if (runStartDate) {
             runStartDate = Date.parse(runStartDate);
         }
 
-        if(window.location.pathname === '/clock') {
+        if (window.location.pathname === '/clock') {
             return <Clock
                 theme={theme}
                 autoscale={autoscale}
             />
-        } else if(window.location.pathname === '/timer') {
+        } else if (window.location.pathname === '/timer') {
             return <Timer
                 theme={theme}
                 autoscale={autoscale}
                 startDate={runStartDate}
             />
-        } else if(window.location.pathname === '/countdown') {
+        } else if (window.location.pathname === '/countdown') {
             return <BigCountdown
                 theme={theme}
                 autoscale={autoscale}
                 label={countdownLabel}
                 date={countdownDate}
             />
-        } else if(window.location.pathname === '/input_feed') {
+        } else if (window.location.pathname === '/input_feed') {
             return <InputFeed
                 theme={theme}
             />
-        } else if(window.location.pathname !== "/") {
+        } else if (window.location.pathname !== "/") {
             return <div>Unexpected URL path</div>
         }
 
@@ -629,18 +615,18 @@ class App extends Component {
         return <div className="OverlayTest">
             <InputFeed theme={"retro"} />
             <Clock
-                    width="540"
-                    height="80"
-                    autoscale={false}
-                    theme={"retro"}
+                width="540"
+                height="80"
+                autoscale={false}
+                theme={"retro"}
             />
             <Timer
-                    width="540"
-                    height="80"
-                    autoscale={false}
-                    theme={"retro"}
-                    timerSpacing={true}
-                    runStartDate={Date.parse("2024-02-12T05:57:22.000Z")}
+                width="540"
+                height="80"
+                autoscale={false}
+                theme={"retro"}
+                timerSpacing={true}
+                runStartDate={Date.parse("2024-02-12T05:57:22.000Z")}
             />
             <RetroTitle
                 width="540"
@@ -659,5 +645,5 @@ class App extends Component {
         </div>
     }
 }
-  
+
 export default App
