@@ -32,6 +32,8 @@ function ButtonSet(props) {
                     return wrap(<img alt="s" className="arrow" src={downArrow} />);
                 case "hold":
                     return wrap("-");
+                default:
+                    break;
             }
         }
         return wrap(button);
@@ -74,7 +76,7 @@ class Input extends Component {
         })
     }
     jsFixWidth(scale, width) {
-        if (this.props.theme == "retro")
+        if (this.props.theme === "retro")
             return {};
         return {
             'transform': 'scaleX(' + scale + ')',
@@ -128,7 +130,7 @@ class Input extends Component {
 }
 
 function User(props) {
-    const retroTheme = props.theme == 'retro';
+    const retroTheme = props.theme === 'retro';
 
     const runBadgeNumber = props.runBadgeNumber || 1;
     const pkmnBadgeNumber = props.pkmnBadgeNumber || 1
@@ -573,7 +575,7 @@ class App extends Component {
         const autoscale = params.get("autoscale") === "true";
         const theme = params.get("theme") || null;
 
-        const timerSpacing = params.get("timer_spacing") === "true";
+        //const timerSpacing = params.get("timer_spacing") === "true";
         const countdownLabel = params.get("countdown_label") || null;
         let countdownDate = params.get("countdown_date") || null;
         if (countdownDate) {
