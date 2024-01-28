@@ -137,7 +137,7 @@ runs: 1:red, 2:crystal, 3:emerald, 4:randomized firered, 5:platinum, 6:randomize
 .run-badge[data-number="33"] {color: red;background: linear-gradient(-90deg, #2989cc 0%, #ffffff 100%);}
 .run-badge[data-number="34"] {
     color: white;
-    background: url("2fire.jpg");
+    background: url("images/2fire.jpg");
     background-position: center;
     animation: slide-background-y 20s infinite linear reverse;
 }
@@ -239,7 +239,7 @@ runs: 1:red, 2:crystal, 3:emerald, 4:randomized firered, 5:platinum, 6:randomize
 .run-badge[data-number="52"] {
     color: black;
     background: #CEFF94;
-    background: url("green checkerboard.png");
+    background: url("images/green checkerboard.png");
     background-size: 50%;
     background-position: top center;
     text-shadow:
@@ -253,7 +253,7 @@ runs: 1:red, 2:crystal, 3:emerald, 4:randomized firered, 5:platinum, 6:randomize
 .run-badge[data-number="55"] {
     color: white;
     background: transparent;
-    background: url("2fire-green.jpg");
+    background: url("images/2fire-green.jpg");
 }
 .run-badge[data-number="56"] {color: #AD0021; background: #F3C69D;}
 .run-badge[data-number="57"] {color: white; background: #c8e8f9; border-color: #026eb7}

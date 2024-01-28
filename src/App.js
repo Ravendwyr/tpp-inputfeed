@@ -7,6 +7,7 @@ import leftArrow from './images/left90.png'
 import upArrow from './images/up90.png'
 import downArrow from './images/down90.png'
 import './App.css'
+import './RunBadge.css'
 
 const FRAME_DURATION = 1000 / 60
 const INPUT_HEIGHT = 50  // px
