@@ -20,7 +20,8 @@
 }
 @font-face {
     font-family: gen1;
-    src: url("./fonts/pokered-regular.woff");
+    src: url("./fonts/pokered-modern-regular.woff2");
+    ascent-override: 102.5%;
 }
 body {
     font-family: pkmndp;
@@ -210,7 +211,7 @@ body {
     font-family: gen1;
     font-size: var(--font-size);
 }
-.InputFeed[data-theme="retro"] .User,
+.InputFeed[data-theme="retro"] .user,
 .InputFeed[data-theme="retro"] .action
 {
     filter:
@@ -247,10 +248,33 @@ body {
     animation-name: retroInputActivation;
     filter: invert(100%);
 }
-.InputFeed[data-theme="retro"] .Input[data-active="true"] .User,
+.InputFeed[data-theme="retro"] .Input[data-active="true"] .user,
 .InputFeed[data-theme="retro"] .Input[data-active="true"] .action {
     color: white;
 }
+
+.InputFeed[data-theme="retro"] .Input {
+    flex-flow: row nowrap;
+    justify-content: stretch;
+}
+.InputFeed[data-theme="retro"] .Input .user {
+    min-width: 0;
+    text-align: left;
+    flex: 1 1 auto;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.InputFeed[data-theme="retro"] .Input .underline {
+    min-width: 0;
+    flex: 2 1 0;
+}
+.InputFeed[data-theme="retro"] .Input .action {
+    flex: 1 1 auto;
+    text-align: right;
+    justify-self: flex-end;
+}
+
 
 
 /* RetroTitle */
