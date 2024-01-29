@@ -172,6 +172,7 @@ function findInputRangeById(inputs, startInputId, endInputId) {
     return result
 }
 
+let lastInitSlidePositionOffset = window.innerHeight * (2 / 3);
 const INITIAL_INPUT_FEED_STATE = {
     'connected': false,
     'inputs': [],
@@ -179,7 +180,7 @@ const INITIAL_INPUT_FEED_STATE = {
     'pendingInputCount': 0,
     'completedInputCount': 0,
     'slidePosition': 0,
-    'slidePositionOffset': window.innerHeight * (2 / 3),
+    'slidePositionOffset': lastInitSlidePositionOffset,
     'culledInputCount': 0,
     'slideSpeed': 8000,
 }
@@ -187,11 +188,15 @@ const INITIAL_INPUT_FEED_STATE = {
 class InputFeed extends Component {
     constructor(props) {
         super(props)
-        this.state = INITIAL_INPUT_FEED_STATE
+        this.state = INITIAL_INPUT_FEED_STATE;
         this.middleRef = React.createRef()
     }
     componentDidMount() {
         this.connect()
+        window.addEventListener("resize", this.fixSlideOffset);
+    }
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.fixSlideOffset);
     }
     connect() {
         const ws = new WebSocket(`ws://${CORE_ADDRESS}:${WS_PORT}/api`)
@@ -210,6 +215,12 @@ class InputFeed extends Component {
     onMessage(ev) {
         const msg = JSON.parse(ev.data)
         this.processMessage(msg.type, msg.extra_parameters)
+    }
+    fixSlideOffset = () => {
+        const newSlidePositionOffset = window.innerHeight * (2 / 3);
+        const initialSlidePositionOffset = lastInitSlidePositionOffset;
+        lastInitSlidePositionOffset = newSlidePositionOffset;
+        this.setState(s => ({ slidePositionOffset: s.slidePositionOffset + (newSlidePositionOffset - initialSlidePositionOffset) }));
     }
     processMessage(type, params) {
         if (type === 'new_anarchy_input') {
