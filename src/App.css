@@ -281,6 +281,31 @@ body {
         drop-shadow(calc(-1px * var(--multiplier)) 0px 0px var(--red));
 }
 
+.InputFeed[data-theme="retro"] .Input[data-side] {
+    justify-content: space-between;
+}
+
+.InputFeed[data-theme="retro"] .Input[data-side] .action {
+    min-width: 5em;
+}
+
+/* .InputFeed[data-theme="retro"] .Input[data-side="left"] {
+    justify-content: flex-start;
+}
+.InputFeed[data-theme="retro"] .Input[data-side="right"] {
+    justify-content: flex-end;
+} */
+
+/* .InputFeed[data-theme="retro"] .Input[data-side="left"] .action:last-child,
+.InputFeed[data-theme="retro"] .Input[data-side="right"] .action:first-child {
+    font-size: 0;
+}
+
+.InputFeed[data-theme="retro"] .Input[data-side="left"] .underline[data-side="right"],
+.InputFeed[data-theme="retro"] .Input[data-side="right"] .underline[data-side="left"] {
+    min-width: 0;
+} */
+
 .InputFeed[data-theme="retro"] .Input {
     flex-flow: row nowrap;
     justify-content: stretch;
