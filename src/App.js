@@ -214,6 +214,7 @@ class InputFeed extends Component {
     }
     onMessage(ev) {
         const msg = JSON.parse(ev.data)
+        //console.log(ev.data);
         this.processMessage(msg.type, msg.extra_parameters)
     }
     fixSlideOffset = () => {
@@ -228,14 +229,12 @@ class InputFeed extends Component {
             if (findInputById(this.state.inputs, params.id)) {
                 return
             }
-            const newInputs = [...this.state.inputs]
             params.active = false
             params.complete = false
             params.frames = null
             params.sleep_frames = null
-            newInputs.push(params)
             this.setState({
-                'inputs': newInputs,
+                'inputs': [...this.state.inputs, params],
                 'pendingInputCount': this.state.pendingInputCount + 1
             })
         } else if (type === 'anarchy_input_start') {
@@ -302,6 +301,7 @@ class InputFeed extends Component {
                 button_set={input.button_set}
                 runBadgeNumber={input.run_badge_number}
                 pkmnBadgeNumber={input.pkmn_badge_number}
+                side={input.side}
             />
         })
         const style = {
@@ -562,6 +562,15 @@ class App extends Component {
         const theme = this.params.get("theme");
         if (theme)
             document.querySelector(':root').setAttribute("data-theme", theme);
+
+        const leftColor = this.params.get("leftcolor");
+        if (leftColor)
+            document.querySelector(':root').style.setProperty("--blue", leftColor);
+
+        const rightColor = this.params.get("rightcolor");
+        if (rightColor)
+            document.querySelector(':root').style.setProperty("--red", rightColor);
+
         const fontName = "gen1";
         this._isMounted = true;
         const font = new FontFaceObserver(fontName);
