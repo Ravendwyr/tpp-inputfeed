@@ -298,7 +298,7 @@ class InputFeed extends Component {
                 key={input.id}
                 user={input.user}
                 frames={input.frames}
-                button_set={input.button_set}
+                button_set={input.button_set_labels || input.button_set}
                 runBadgeNumber={input.run_badge_number}
                 pkmnBadgeNumber={input.pkmn_badge_number}
                 side={input.side}
