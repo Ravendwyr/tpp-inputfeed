@@ -9,9 +9,16 @@ import downArrow from './images/down90.png'
 import './App.css'
 import './RunBadge.css'
 
+const arrowImg = {
+    right: rightArrow,
+    left: leftArrow,
+    up: upArrow,
+    down: downArrow
+}
+
 const CORE_ADDRESS = "192.168.1.6"; //"localhost";
-const WS_PORT = 5001;
-const API_PORT = 5010;
+const WS_PORT = 5101;
+const API_PORT = 5110;
 
 const FRAME_DURATION = 1000 / 60
 const INPUT_HEIGHT = 50  // px
@@ -19,22 +26,19 @@ const SPACING = 12
 
 function ButtonSet(props) {
     const buttons = props.buttons.map(function (button, index) {
-        const wrap = inner => <span key={index}>{inner} </span>;
-        if (props.theme !== "retro") {
-            switch (button) {
-                case "right":
-                    return wrap(<img alt="e" className="arrow" src={rightArrow} />);
-                case "left":
-                    return wrap(<img alt="w" className="arrow" src={leftArrow} />);
-                case "up":
-                    return wrap(<img alt="n" className="arrow" src={upArrow} />);
-                case "down":
-                    return wrap(<img alt="s" className="arrow" src={downArrow} />);
-                case "hold":
-                    return wrap("-");
-                default:
+        const wrap = inner => <span key={index} data-button={button}>{inner}</span>;
+        switch (button) {
+            case "right":
+            case "left":
+            case "up":
+            case "down":
+                if (props.theme === "retro")
                     break;
-            }
+                return wrap(<img alt={button} className="arrow" src={arrowImg[button]} />);
+            case "hold":
+                return wrap("-");
+            default:
+                break;
         }
         return wrap(button);
     });

@@ -153,6 +153,10 @@ body {
     color: white;
 }
 
+.Input .action span + span:not([data-button="hold"])::before, .Input .action span[data-button="hold"] {
+    content:'+';
+}
+
 .User {
     display: inline-block;
     white-space: nowrap;
