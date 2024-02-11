@@ -557,6 +557,57 @@ class BigCountdown extends OverlayComponent {
     }
 }
 
+class LastSave extends OverlayComponent {
+    constructor(props) {
+        super(props);
+        this.state.now = new Date();
+        this.updateInterval = null;
+    }
+    componentDidMount() {
+        super.componentDidMount();
+        this.updateInterval = setInterval(this.updateNow, 100);
+
+        this.socket = new WebSocket(`ws://${this.props.wsAddress}`);
+        this.socket.addEventListener("message", this.receiveData);
+    }
+    componentWillUnmount() {
+        clearInterval(this.updateInterval);
+        this.socket.close();
+    }
+    updateNow = () => this.setState({ "now": new Date() });
+    receiveData = message => {
+        try {
+            const data = JSON.parse(message.data);
+            const screenName = this.props.screenName.toLowerCase().trim();
+            const date = Date.parse(data.find(screen=>screen.Name.toLowerCase() === screenName).LastMatchTime);
+            if (this.state.date !== date)
+                this.setState({ date });
+        }
+        catch (e) {
+            console.error(e);
+            this.setState({ "date": undefined });
+        }
+    }
+    render() {
+        if (!this.state.date)
+            return null;
+        const secondsSinceSave = Math.floor((this.state.now - this.state.date) / 1000);
+        let durationStr = secondsToDurationStr(secondsSinceSave).replace("-", "");
+        const style = super.getStyle();
+
+
+        return <div
+            className="BigCountdown"
+            style={style}
+            data-theme={this.props.theme}
+        >
+            <span className="inner" ref={this.innerRef}>
+                {this.props.label || "Time since last save: "}{durationStr}
+            </span>
+        </div>
+    }
+}
+
 class App extends Component {
     state = { fontLoaded: false };
     _isMounted = false;
@@ -615,71 +666,87 @@ class App extends Component {
             runStartDate = Date.parse(runStartDate);
         }
 
-        if (window.location.pathname === '/clock') {
-            return <Clock
-                theme={theme}
-                autoscale={autoscale}
-            />
-        } else if (window.location.pathname === '/timer') {
-            return <Timer
-                theme={theme}
-                autoscale={autoscale}
-                runStartDate={runStartDate}
-            />
-        } else if (window.location.pathname === '/countdown') {
-            return <BigCountdown
-                theme={theme}
-                autoscale={autoscale}
-                label={countdownLabel}
-                date={countdownDate}
-            />
-        } else if (window.location.pathname === '/input_feed') {
-            return <InputFeed
-                theme={theme}
-            />
-        } else if (window.location.pathname === '/retro_title') {
-            return <RetroTitle
-                width="540"
-                height="100"
-                autoscale={true}
-                theme={"retro"}
-            />
-        } else if (window.location.pathname !== "/") {
-            return <div>Unexpected URL path. Valid paths are /clock /timer /countdown and /input_feed.</div>
+        switch(window.location.pathname) {
+            default:
+                return <div>Unexpected URL path. Valid paths are /retro_title /clock /timer /countdown /last_save and /input_feed.</div>
+
+            case "/clock":
+                return <Clock
+                    theme={theme}
+                    autoscale={autoscale}
+                />;
+
+            case "/timer":
+                return <Timer
+                    theme={theme}
+                    autoscale={autoscale}
+                    runStartDate={runStartDate}
+                />;
+
+            case "/countdown":
+                return <BigCountdown
+                    theme={theme}
+                    autoscale={autoscale}
+                    label={countdownLabel}
+                    date={countdownDate}
+                />;
+
+            case "/last_save":
+                return <LastSave
+                    theme={theme}
+                    autoscale={autoscale}
+                    label={params.get("label")}
+                    wsAddress={params.get("ws_address")}
+                    screenName={params.get("screen_name")}
+                />;
+
+            case "/input_feed":
+                return <InputFeed
+                    theme={theme}
+                />;
+
+            case "/title":
+            case "/retro_title":
+                return <RetroTitle
+                    width="540"
+                    height="100"
+                    autoscale={true}
+                    theme={window.location.pathname === "/retro_title" ? "retro": theme}
+                />
+
+            case "/":
+                return <div className="OverlayTest">
+                    <InputFeed theme={"retro"} />
+                    <Clock
+                        width="540"
+                        height="80"
+                        autoscale={false}
+                        theme={"retro"}
+                    />
+                    <Timer
+                        width="540"
+                        height="80"
+                        autoscale={false}
+                        theme={"retro"}
+                        timerSpacing={true}
+                        runStartDate={Date.parse("2024-02-12T05:57:22.000Z")}
+                    />
+                    <RetroTitle
+                        width="540"
+                        height="100"
+                        autoscale={true}
+                        theme={"retro"}
+                    />
+                    <BigCountdown
+                        label={"Pokemon Red in "}
+                        date={Date.parse("2024-02-12T05:57:22.000Z")}
+                        width="540"
+                        height="80"
+                        autoscale={false}
+                        theme={"retro"}
+                    />
+                </div>;
         }
-
-
-        return <div className="OverlayTest">
-            <InputFeed theme={"retro"} />
-            <Clock
-                width="540"
-                height="80"
-                autoscale={false}
-                theme={"retro"}
-            />
-            <Timer
-                width="540"
-                height="80"
-                autoscale={false}
-                theme={"retro"}
-                timerSpacing={true}
-                runStartDate={Date.parse("2024-02-12T05:57:22.000Z")}
-            />
-            <RetroTitle
-                width="540"
-                height="100"
-                autoscale={true}
-                theme={"retro"}
-            />
-            <BigCountdown
-                label={"Pokemon Red in "}
-                date={Date.parse("2024-02-12T05:57:22.000Z")}
-                width="540"
-                height="80"
-                autoscale={false}
-                theme={"retro"}
-            />
-        </div>
     }
 }
 
