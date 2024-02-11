@@ -9,9 +9,16 @@ import downArrow from './images/down90.png'
 import './App.css'
 import './RunBadge.css'
 
+const arrowImg = {
+    right: rightArrow,
+    left: leftArrow,
+    up: upArrow,
+    down: downArrow
+}
+
 const CORE_ADDRESS = "192.168.1.6"; //"localhost";
-const WS_PORT = 5001;
-const API_PORT = 5010;
+const WS_PORT = 5101;
+const API_PORT = 5110;
 
 const FRAME_DURATION = 1000 / 60
 const INPUT_HEIGHT = 50  // px
@@ -19,22 +26,19 @@ const SPACING = 12
 
 function ButtonSet(props) {
     const buttons = props.buttons.map(function (button, index) {
-        const wrap = inner => <span key={index}>{inner} </span>;
-        if (props.theme !== "retro") {
-            switch (button) {
-                case "right":
-                    return wrap(<img alt="e" className="arrow" src={rightArrow} />);
-                case "left":
-                    return wrap(<img alt="w" className="arrow" src={leftArrow} />);
-                case "up":
-                    return wrap(<img alt="n" className="arrow" src={upArrow} />);
-                case "down":
-                    return wrap(<img alt="s" className="arrow" src={downArrow} />);
-                case "hold":
-                    return wrap("-");
-                default:
+        const wrap = inner => <span key={index} data-button={button}>{inner}</span>;
+        switch (button) {
+            case "right":
+            case "left":
+            case "up":
+            case "down":
+                if (props.theme === "retro")
                     break;
-            }
+                return wrap(<img alt={button} className="arrow" src={arrowImg[button]} />);
+            case "hold":
+                return wrap("-");
+            default:
+                break;
         }
         return wrap(button);
     });
@@ -172,6 +176,7 @@ function findInputRangeById(inputs, startInputId, endInputId) {
     return result
 }
 
+let lastInitSlidePositionOffset = window.innerHeight * (2 / 3);
 const INITIAL_INPUT_FEED_STATE = {
     'connected': false,
     'inputs': [],
@@ -179,7 +184,7 @@ const INITIAL_INPUT_FEED_STATE = {
     'pendingInputCount': 0,
     'completedInputCount': 0,
     'slidePosition': 0,
-    'slidePositionOffset': window.innerHeight * (2 / 3),
+    'slidePositionOffset': lastInitSlidePositionOffset,
     'culledInputCount': 0,
     'slideSpeed': 8000,
 }
@@ -187,11 +192,15 @@ const INITIAL_INPUT_FEED_STATE = {
 class InputFeed extends Component {
     constructor(props) {
         super(props)
-        this.state = INITIAL_INPUT_FEED_STATE
+        this.state = INITIAL_INPUT_FEED_STATE;
         this.middleRef = React.createRef()
     }
     componentDidMount() {
         this.connect()
+        window.addEventListener("resize", this.fixSlideOffset);
+    }
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.fixSlideOffset);
     }
     connect() {
         const ws = new WebSocket(`ws://${CORE_ADDRESS}:${WS_PORT}/api`)
@@ -209,7 +218,14 @@ class InputFeed extends Component {
     }
     onMessage(ev) {
         const msg = JSON.parse(ev.data)
+        //console.log(ev.data);
         this.processMessage(msg.type, msg.extra_parameters)
+    }
+    fixSlideOffset = () => {
+        const newSlidePositionOffset = window.innerHeight * (2 / 3);
+        const initialSlidePositionOffset = lastInitSlidePositionOffset;
+        lastInitSlidePositionOffset = newSlidePositionOffset;
+        this.setState(s => ({ slidePositionOffset: s.slidePositionOffset + (newSlidePositionOffset - initialSlidePositionOffset) }));
     }
     processMessage(type, params) {
         if (type === 'new_anarchy_input') {
@@ -217,14 +233,12 @@ class InputFeed extends Component {
             if (findInputById(this.state.inputs, params.id)) {
                 return
             }
-            const newInputs = [...this.state.inputs]
             params.active = false
             params.complete = false
             params.frames = null
             params.sleep_frames = null
-            newInputs.push(params)
             this.setState({
-                'inputs': newInputs,
+                'inputs': [...this.state.inputs, params],
                 'pendingInputCount': this.state.pendingInputCount + 1
             })
         } else if (type === 'anarchy_input_start') {
@@ -288,9 +302,10 @@ class InputFeed extends Component {
                 key={input.id}
                 user={input.user}
                 frames={input.frames}
-                button_set={input.button_set}
+                button_set={input.button_set_labels || input.button_set}
                 runBadgeNumber={input.run_badge_number}
                 pkmnBadgeNumber={input.pkmn_badge_number}
+                side={input.side}
             />
         })
         const style = {
@@ -551,6 +566,15 @@ class App extends Component {
         const theme = this.params.get("theme");
         if (theme)
             document.querySelector(':root').setAttribute("data-theme", theme);
+
+        const leftColor = this.params.get("leftcolor");
+        if (leftColor)
+            document.querySelector(':root').style.setProperty("--blue", leftColor);
+
+        const rightColor = this.params.get("rightcolor");
+        if (rightColor)
+            document.querySelector(':root').style.setProperty("--red", rightColor);
+
         const fontName = "gen1";
         this._isMounted = true;
         const font = new FontFaceObserver(fontName);

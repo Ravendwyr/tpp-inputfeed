@@ -38,10 +38,10 @@ body {
 
 @keyframes retroInputActivation {
     0%, 99.999% {
-        background: black;
+        background: white;
     }
     100% {
-        background: white;
+        background: black;
     }
 }
 
@@ -153,6 +153,10 @@ body {
     color: white;
 }
 
+.Input .action span + span:not([data-button="hold"])::before, .Input .action span[data-button="hold"] {
+    content:'+';
+}
+
 .User {
     display: inline-block;
     white-space: nowrap;
@@ -246,12 +250,65 @@ body {
 
 .InputFeed[data-theme="retro"] .Input[data-active="true"] {
     animation-name: retroInputActivation;
-    filter: invert(100%);
+    /*filter: invert(100%);*/
 }
+.InputFeed[data-theme="retro"] .Input[data-active="true"]:not([data-side]) .user,
+.InputFeed[data-theme="retro"] .Input[data-active="true"]:not([data-side]) .action {
+    filter:
+        drop-shadow(0px calc(1px * var(--multiplier)) 0px white)
+        drop-shadow(0px calc(-1px * var(--multiplier)) 0px white)
+        drop-shadow(calc(1px * var(--multiplier)) 0px 0px white)
+        drop-shadow(calc(-1px * var(--multiplier)) 0px 0px white);
+
+}
+
 .InputFeed[data-theme="retro"] .Input[data-active="true"] .user,
 .InputFeed[data-theme="retro"] .Input[data-active="true"] .action {
-    color: white;
+    color: black;
 }
+
+.InputFeed[data-theme="retro"] .Input[data-active="true"][data-side="left"] .user,
+.InputFeed[data-theme="retro"] .Input[data-active="true"][data-side="left"] .action {
+    filter:
+        drop-shadow(0px calc(1px * var(--multiplier)) 0px var(--blue))
+        drop-shadow(0px calc(-1px * var(--multiplier)) 0px var(--blue))
+        drop-shadow(calc(1px * var(--multiplier)) 0px 0px var(--blue))
+        drop-shadow(calc(-1px * var(--multiplier)) 0px 0px var(--blue));
+}
+
+.InputFeed[data-theme="retro"] .Input[data-active="true"][data-side="right"] .user,
+.InputFeed[data-theme="retro"] .Input[data-active="true"][data-side="right"] .action {
+    filter:
+        drop-shadow(0px calc(1px * var(--multiplier)) 0px var(--red))
+        drop-shadow(0px calc(-1px * var(--multiplier)) 0px var(--red))
+        drop-shadow(calc(1px * var(--multiplier)) 0px 0px var(--red))
+        drop-shadow(calc(-1px * var(--multiplier)) 0px 0px var(--red));
+}
+
+.InputFeed[data-theme="retro"] .Input[data-side] {
+    justify-content: space-between;
+}
+
+.InputFeed[data-theme="retro"] .Input[data-side] .action {
+    min-width: 5em;
+}
+
+/* .InputFeed[data-theme="retro"] .Input[data-side="left"] {
+    justify-content: flex-start;
+}
+.InputFeed[data-theme="retro"] .Input[data-side="right"] {
+    justify-content: flex-end;
+} */
+
+/* .InputFeed[data-theme="retro"] .Input[data-side="left"] .action:last-child,
+.InputFeed[data-theme="retro"] .Input[data-side="right"] .action:first-child {
+    font-size: 0;
+}
+
+.InputFeed[data-theme="retro"] .Input[data-side="left"] .underline[data-side="right"],
+.InputFeed[data-theme="retro"] .Input[data-side="right"] .underline[data-side="left"] {
+    min-width: 0;
+} */
 
 .InputFeed[data-theme="retro"] .Input {
     flex-flow: row nowrap;
@@ -266,13 +323,18 @@ body {
     overflow: hidden;
 }
 .InputFeed[data-theme="retro"] .Input .underline {
-    min-width: 0;
+    min-width: .5em;
     flex: 2 1 0;
 }
 .InputFeed[data-theme="retro"] .Input .action {
     flex: 1 1 auto;
     text-align: right;
     justify-self: flex-end;
+}
+
+.InputFeed[data-theme="retro"] .Input .action:first-child {
+    text-align: left;
+    justify-self: flex-start;
 }
 
 
