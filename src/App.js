@@ -348,7 +348,7 @@ function ISODateString(d) {
 }
 
 
-function secondsToDurationStr(seconds, spacing) {
+function secondsToDurationStr(seconds, spacing, hideZero) {
     let prefix = "";
     if (seconds < 0) {
         prefix = "-";
@@ -364,8 +364,12 @@ function secondsToDurationStr(seconds, spacing) {
         p = " ";
     }
 
-    return prefix + pad(d) + "d" + p + pad(h) + "h" + p + pad(m) + "m" + p
-        + pad(s) + "s";
+    return prefix + [
+        (d > 0 || !hideZero) && (pad(d) + "d"),
+        (h > 0 || d > 0 || !hideZero) && (pad(h) + "h"),
+        (m > 0 || h > 0 || d > 0 || !hideZero) && (pad(m) + "m"),
+        (pad(s) + "s")
+    ].filter(s=>!!s).join(p);
 }
 
 
@@ -568,6 +572,9 @@ class LastSave extends OverlayComponent {
         this.updateInterval = setInterval(this.updateNow, 100);
 
         this.socket = new WebSocket(`ws://${this.props.wsAddress}`);
+        this.socket.addEventListener("open", ()=>console.log("Last Save websocket connected"));
+        this.socket.addEventListener("close", ()=>console.log("Last Save websocket closed"));
+        this.socket.addEventListener("error", err=>console.error(err));
         this.socket.addEventListener("message", this.receiveData);
     }
     componentWillUnmount() {
@@ -592,7 +599,7 @@ class LastSave extends OverlayComponent {
         if (!this.state.date)
             return null;
         const secondsSinceSave = Math.floor((this.state.now - this.state.date) / 1000);
-        let durationStr = secondsToDurationStr(secondsSinceSave).replace("-", "");
+        let durationStr = secondsToDurationStr(secondsSinceSave, false, true);
         const style = super.getStyle();
 
 
