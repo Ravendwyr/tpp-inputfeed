@@ -624,7 +624,7 @@ class App extends Component {
             return <Timer
                 theme={theme}
                 autoscale={autoscale}
-                startDate={runStartDate}
+                runStartDate={runStartDate}
             />
         } else if (window.location.pathname === '/countdown') {
             return <BigCountdown
