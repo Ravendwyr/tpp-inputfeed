@@ -285,6 +285,7 @@ body {
     line-height: var(--font-size);
     padding-left: calc(1px * var(--multiplier));
     padding-top: calc(1px * var(--multiplier));
+    margin-top: 2px;
 }
 .RetroTitle .title-line-1 {
     white-space: nowrap;

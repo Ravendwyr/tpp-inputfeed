@@ -613,6 +613,13 @@ class App extends Component {
             return <InputFeed
                 theme={theme}
             />
+        } else if (window.location.pathname === '/retro_title') {
+            return <RetroTitle
+                width="540"
+                height="100"
+                autoscale={true}
+                theme={"retro"}
+            />
         } else if (window.location.pathname !== "/") {
             return <div>Unexpected URL path. Valid paths are /clock /timer /countdown and /input_feed.</div>
         }
