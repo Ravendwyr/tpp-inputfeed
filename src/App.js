@@ -374,6 +374,7 @@ function secondsToDurationStr(seconds, spacing, hideZero) {
 
 
 class OverlayComponent extends Component {
+    _mounted = false;
     constructor(props) {
         super(props);
         this.state = {
@@ -398,10 +399,13 @@ class OverlayComponent extends Component {
         }
     }
     componentDidMount() {
+        this._mounted = true;
         this.updateScale();
         window.addEventListener("resize", this.updateScale);
+        this.tick();
     }
     componentWillUnmount() {
+        this._mounted = false;
         window.removeEventListener("resize", this.updateScale);
     }
     getStyle() {
@@ -409,6 +413,17 @@ class OverlayComponent extends Component {
             "transform": "scale(" + this.state.scaleX + ", " + this.state.scaleY + ")",
             "transformOrigin": "top left",
         };
+    }
+    _tickRateMs = 1000;
+    _lastTick = 0;
+    tick = () => {
+        if (!this.onTick || !this._mounted)
+           return;
+        const now = new Date();
+        if (Math.floor(now.valueOf() / this._tickRateMs) !== Math.floor(this._lastTick / this._tickRateMs))
+            this.onTick(now);
+        this._lastTick = now.valueOf();
+        requestAnimationFrame(this.tick);
     }
 }
 
@@ -418,20 +433,9 @@ class Clock extends OverlayComponent {
     constructor(props) {
         super(props);
         this.state.now = new Date();
-        this.updateTime = this.updateTime.bind(this);
-        this.updateTimeInterval = null;
     }
-    updateTime() {
-        const now = new Date();
-        this.setState({ "now": now }, this.updateScale);
-    }
-    componentDidMount() {
-        super.componentDidMount();
-        this.updateTimeInterval = setInterval(this.updateTime, 1000);
-    }
-    componentWillUnmount() {
-        super.componentWillUnmount();
-        clearInterval(this.updateTimeInterval);
+    onTick(now) {
+        this.setState({ now }, this.updateScale);
     }
     getStr() {
         let s = ISODateString(this.state.now);
@@ -478,26 +482,15 @@ class Timer extends OverlayComponent {
     constructor(props) {
         super(props);
         this.state.now = new Date();
-        this.updateTime = this.updateTime.bind(this);
-        this.updateTimeInterval = null;
         this.startRunEventFired = false;
     }
-    updateTime() {
-        const now = new Date();
-        this.setState({ "now": now }, this.updateScale);
+    onTick(now) {
+        this.setState({ now }, this.updateScale);
         if (!this.startRunEventFired && now > this.props.startDate) {
             this.startRunEventFired = true;
             console.log("start run event fired");
             fetch(`http://${CORE_ADDRESS}:${API_PORT}/start_run`, { mode: "no-cors" });
         }
-    }
-    componentDidMount() {
-        super.componentDidMount();
-        this.updateTimeInterval = setInterval(this.updateTime, 1000);
-    }
-    componentWillUnmount() {
-        clearInterval(this.updateTimeInterval);
-        super.componentWillUnmount();
     }
     getStr() {
         const secondsFromStart = Math.floor(
@@ -526,18 +519,9 @@ class BigCountdown extends OverlayComponent {
     constructor(props) {
         super(props);
         this.state.now = new Date();
-        this.updateNow = this.updateNow.bind(this);
-        this.updateInterval = null;
     }
-    componentDidMount() {
-        super.componentDidMount();
-        this.updateInterval = setInterval(this.updateNow, 100);
-    }
-    componentWillUnmount() {
-        clearInterval(this.updateInterval);
-    }
-    updateNow() {
-        this.setState({ "now": new Date() })
+    onTick(now) {
+        this.setState({ now })
     }
     render() {
         const secondsFromStart = Math.floor(
@@ -565,11 +549,9 @@ class LastSave extends OverlayComponent {
     constructor(props) {
         super(props);
         this.state.now = new Date();
-        this.updateInterval = null;
     }
     componentDidMount() {
         super.componentDidMount();
-        this.updateInterval = setInterval(this.updateNow, 100);
 
         this.socket = new WebSocket(`ws://${this.props.wsAddress}`);
         this.socket.addEventListener("open", ()=>console.log("Last Save websocket connected"));
@@ -578,15 +560,16 @@ class LastSave extends OverlayComponent {
         this.socket.addEventListener("message", this.receiveData);
     }
     componentWillUnmount() {
-        clearInterval(this.updateInterval);
         this.socket.close();
     }
-    updateNow = () => this.setState({ "now": new Date() });
+    onTick(now) {
+        this.setState({ now });
+    }
     receiveData = message => {
         try {
             const data = JSON.parse(message.data);
             const screenName = this.props.screenName.toLowerCase().trim();
-            const date = Date.parse(data.find(screen=>screen.Name.toLowerCase() === screenName).LastMatchTime);
+            const date = Math.floor(Date.parse(data.find(screen=>screen.Name.toLowerCase() === screenName).LastMatchTime) / 1000) * 1000;
             if (this.state.date !== date)
                 this.setState({ date });
         }
