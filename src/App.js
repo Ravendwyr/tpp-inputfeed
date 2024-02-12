@@ -585,7 +585,7 @@ class LastSave extends OverlayComponent {
             const data = JSON.parse(message.data);
             const screenName = this.props.screenName.toLowerCase().trim();
             const date = Math.floor(Date.parse(data.find(screen => screen.Name.toLowerCase() === screenName).LastMatchTime) / 1000) * 1000;
-            if (this.state.date !== date)
+            if (this.state.date !== date && Date.now() - date < (255 * 24 * 60 * 60 * 1000)) // Date is not the same and date is not more than 255d old
                 this.setState({ date });
         }
         catch (e) {
