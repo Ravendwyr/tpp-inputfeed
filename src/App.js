@@ -650,10 +650,12 @@ class InputCounter extends OverlayComponent {
             this.setState({ inputCount: msg.extra_parameters.presses })
     }
     render() {
+        if (this.state.inputCount <= 0)
+            return null;
         const style = super.getStyle();
 
-        const inputCount = this.state.inputCount.toString();
-        const padding = new Array(Math.max((this.props.digits || 8) - inputCount.length, 0)).fill("0", 0).join('');
+        const inputCount = this.state.inputCount.toLocaleString();
+        // const padding = new Array(Math.max((this.props.digits || 8) - inputCount.length, 0)).fill("0", 0).join('');
 
         return <div
             className="BigCountdown InputCounter"
@@ -661,7 +663,7 @@ class InputCounter extends OverlayComponent {
             data-theme={this.props.theme}
         >
             <span className="inner" ref={this.innerRef}>
-                <span className='padding'>{padding}</span>
+                {/* <span className='padding'>{padding}</span> */}
                 <span className='inputs'>{inputCount}</span>
             </span>
         </div>
