@@ -348,7 +348,7 @@ function ISODateString(d) {
 }
 
 
-function secondsToDurationStr(seconds, spacing, hideZero) {
+function secondsToDurationStr(seconds, spacing, hideZero, twoSegments) {
     let prefix = "";
     if (seconds < 0) {
         prefix = "-";
@@ -359,17 +359,12 @@ function secondsToDurationStr(seconds, spacing, hideZero) {
     const h = Math.floor(seconds / 60 / 60) % 24;
     const d = Math.floor(seconds / 60 / 60 / 24);
 
-    let p = "";
-    if (spacing) {
-        p = " ";
-    }
-
     return prefix + [
         (d > 0 || !hideZero) && (pad(d) + "d"),
         (h > 0 || d > 0 || !hideZero) && (pad(h) + "h"),
-        (m > 0 || h > 0 || d > 0 || !hideZero) && (pad(m) + "m"),
+        (m > 0 || h > 0 || d > 0 || !hideZero || !!twoSegments) && (pad(m) + "m"),
         (pad(s) + "s")
-    ].filter(s=>!!s).join(p);
+    ].filter(s=>!!s).slice(0, twoSegments ? 2 : undefined).join(spacing ? " ": "");
 }
 
 
@@ -582,9 +577,12 @@ class LastSave extends OverlayComponent {
         if (!this.state.date)
             return null;
         const secondsSinceSave = Math.floor((this.state.now - this.state.date) / 1000);
-        let durationStr = secondsToDurationStr(secondsSinceSave, false, true);
+        let durationStr = secondsToDurationStr(secondsSinceSave, false, true, true);
         const style = super.getStyle();
 
+        let label = this.props.label || "Saved {} ago";
+        if (!label.includes("{}"))
+            label += " {}";
 
         return <div
             className="BigCountdown"
@@ -592,7 +590,7 @@ class LastSave extends OverlayComponent {
             data-theme={this.props.theme}
         >
             <span className="inner" ref={this.innerRef}>
-                {this.props.label || "Time since last save: "}{durationStr}
+                {label.replace("{}", durationStr)}
             </span>
         </div>
     }
