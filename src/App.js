@@ -190,33 +190,43 @@ const INITIAL_INPUT_FEED_STATE = {
 }
 
 class InputFeed extends Component {
+    _isMounted = false;
     constructor(props) {
         super(props)
         this.state = INITIAL_INPUT_FEED_STATE;
         this.middleRef = React.createRef()
     }
     componentDidMount() {
+        this._isMounted = true;
         this.connect()
         window.addEventListener("resize", this.fixSlideOffset);
     }
     componentWillUnmount() {
+        this._isMounted = false;
         window.removeEventListener("resize", this.fixSlideOffset);
+        if (this.ws)
+            this.ws.close();
     }
-    connect() {
-        const ws = new WebSocket(`ws://${CORE_ADDRESS}:${WS_PORT}/api`)
-        ws.onopen = this.onOpen.bind(this)
-        ws.onclose = this.onClose.bind(this)
-        ws.onmessage = this.onMessage.bind(this)
+    connect = () => {
+        if (this.ws)
+            this.ws.close();
+        this.ws = new WebSocket(`ws://${CORE_ADDRESS}:${WS_PORT}/api`)
+        this.ws.onopen = this.onOpen;
+        this.ws.onclose = this.onClose;
+        this.ws.onmessage = this.onMessage;
     }
-    onOpen() {
+    onOpen = () => {
+        console.log("Connected to input feed websocket");
         const state = { ...INITIAL_INPUT_FEED_STATE }
         state.connected = true
         this.setState(state)
     }
-    onClose() {
-        this.setState({ 'connected': false }, this.connect)
+    onClose = () => {
+        console.log("Websocket connection closed");
+        if (this._isMounted)
+            this.setState({ 'connected': false }, this.connect)
     }
-    onMessage(ev) {
+    onMessage = (ev) => {
         const msg = JSON.parse(ev.data)
         //console.log(ev.data);
         this.processMessage(msg.type, msg.extra_parameters)
@@ -364,7 +374,7 @@ function secondsToDurationStr(seconds, spacing, hideZero, twoSegments) {
         (h > 0 || d > 0 || !hideZero) && (pad(h) + "h"),
         (m > 0 || h > 0 || d > 0 || !hideZero || !!twoSegments) && (pad(m) + "m"),
         (pad(s) + "s")
-    ].filter(s=>!!s).slice(0, twoSegments ? 2 : undefined).join(spacing ? " ": "");
+    ].filter(s => !!s).slice(0, twoSegments ? 2 : undefined).join(spacing ? " " : "");
 }
 
 
@@ -413,7 +423,7 @@ class OverlayComponent extends Component {
     _lastTick = 0;
     tick = () => {
         if (!this.onTick || !this._mounted)
-           return;
+            return;
         const now = new Date();
         if (Math.floor(now.valueOf() / this._tickRateMs) !== Math.floor(this._lastTick / this._tickRateMs))
             this.onTick(now);
@@ -541,30 +551,40 @@ class BigCountdown extends OverlayComponent {
 }
 
 class LastSave extends OverlayComponent {
+    _isMounted = false;
     constructor(props) {
         super(props);
         this.state.now = new Date();
     }
     componentDidMount() {
+        this._isMounted = true;
         super.componentDidMount();
-
-        this.socket = new WebSocket(`ws://${this.props.wsAddress}`);
-        this.socket.addEventListener("open", ()=>console.log("Last Save websocket connected"));
-        this.socket.addEventListener("close", ()=>console.log("Last Save websocket closed"));
-        this.socket.addEventListener("error", err=>console.error(err));
-        this.socket.addEventListener("message", this.receiveData);
+        this.connect();
     }
     componentWillUnmount() {
-        this.socket.close();
+        this._isMounted = false;
+        if (this.socket)
+            this.socket.close();
     }
     onTick(now) {
         this.setState({ now });
+    }
+    connect = () => {
+        this.socket = new WebSocket(`ws://${this.props.wsAddress}`);
+        this.socket.addEventListener("open", () => console.log("Last Save websocket connected"));
+        this.socket.addEventListener("close", () => {
+            console.log("Last Save websocket closed");
+            if (this._isMounted)
+                setTimeout(this.connect, 2000);
+        });
+        this.socket.addEventListener("error", err => console.error(err));
+        this.socket.addEventListener("message", this.receiveData);
     }
     receiveData = message => {
         try {
             const data = JSON.parse(message.data);
             const screenName = this.props.screenName.toLowerCase().trim();
-            const date = Math.floor(Date.parse(data.find(screen=>screen.Name.toLowerCase() === screenName).LastMatchTime) / 1000) * 1000;
+            const date = Math.floor(Date.parse(data.find(screen => screen.Name.toLowerCase() === screenName).LastMatchTime) / 1000) * 1000;
             if (this.state.date !== date)
                 this.setState({ date });
         }
@@ -654,7 +674,7 @@ class App extends Component {
             runStartDate = Date.parse(runStartDate);
         }
 
-        switch(window.location.pathname) {
+        switch (window.location.pathname) {
             default:
                 return <div>Unexpected URL path. Valid paths are /retro_title /clock /timer /countdown /last_save and /input_feed.</div>
 
@@ -699,7 +719,7 @@ class App extends Component {
                     width="540"
                     height="100"
                     autoscale={true}
-                    theme={window.location.pathname === "/retro_title" ? "retro": theme}
+                    theme={window.location.pathname === "/retro_title" ? "retro" : theme}
                 />
 
             case "/":
