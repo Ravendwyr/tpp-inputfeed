@@ -616,6 +616,59 @@ class LastSave extends OverlayComponent {
     }
 }
 
+class InputCounter extends OverlayComponent {
+    _isMounted = false;
+    constructor(props) {
+        super(props);
+        this.state = { inputCount: 0 };
+    }
+    componentDidMount() {
+        this._isMounted = true;
+        super.componentDidMount();
+        this.connect();
+    }
+    componentWillUnmount() {
+        this._isMounted = false;
+        if (this.socket)
+            this.socket.close();
+    }
+    connect = () => {
+        this.socket = new WebSocket(`ws://${CORE_ADDRESS}:${WS_PORT}/api`)
+        this.socket.addEventListener("open", () => console.log("Input Counter websocket connected"));
+        this.socket.addEventListener("close", () => {
+            console.log("Input Counter websocket closed");
+            if (this._isMounted)
+                setTimeout(this.connect, 500);
+        });
+        this.socket.addEventListener("error", err => console.error(err));
+        this.socket.addEventListener("message", this.receiveData);
+    }
+    receiveData = message => {
+        const msg = JSON.parse(message.data)
+        //console.dir(msg);
+        if (msg.type === "button_press_update" && msg.extra_parameters && msg.extra_parameters.presses)
+            this.setState({ inputCount: msg.extra_parameters.presses })
+    }
+    render() {
+        const style = super.getStyle();
+
+        const inputCount = this.state.inputCount.toString();
+        const padding = new Array(Math.max((this.props.digits || 8) - inputCount.length, 0)).fill("0", 0).join('');
+
+        return <div
+            className="BigCountdown InputCounter"
+            style={style}
+            data-theme={this.props.theme}
+        >
+            <span className="inner" ref={this.innerRef}>
+                <span className='padding'>{padding}</span>
+                <span className='inputs'>{inputCount}</span>
+            </span>
+        </div>
+    }
+}
+
+
 class App extends Component {
     state = { fontLoaded: false };
     _isMounted = false;
@@ -676,7 +729,7 @@ class App extends Component {
 
         switch (window.location.pathname) {
             default:
-                return <div>Unexpected URL path. Valid paths are /retro_title /clock /timer /countdown /last_save and /input_feed.</div>
+                return <div>Unexpected URL path. Valid paths are /retro_title /clock /timer /countdown /last_save /input_feed and /input_counter.</div>
 
             case "/clock":
                 return <Clock
@@ -711,6 +764,12 @@ class App extends Component {
             case "/input_feed":
                 return <InputFeed
                     theme={theme}
+                />;
+
+            case "/input_counter":
+                return <InputCounter
+                    theme={theme}
+                    digits={params.get("digits")}
                 />;
 
             case "/title":
