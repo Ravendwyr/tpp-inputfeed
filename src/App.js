@@ -91,7 +91,7 @@ class Input extends Component {
     renderName() {
         if (this.props.theme === "retro")
             return <div className="user">
-                {!!this.props.channelImage &&  <img className="channel-image" src={this.props.channelImage}/>}
+                {!!this.props.channelImage &&  <img className="channel-image" alt="" src={this.props.channelImage}/>}
                 {this.props.user.name}
                 </div>;
 
