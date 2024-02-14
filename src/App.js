@@ -90,7 +90,10 @@ class Input extends Component {
     }
     renderName() {
         if (this.props.theme === "retro")
-            return <div className="user">{this.props.user.name}</div>;
+            return <div className="user">
+                {!!this.props.channelImage &&  <img className="channel-image" src={this.props.channelImage}/>}
+                {this.props.user.name}
+                </div>;
 
         return <div className="user" ref={this.userRef} style={this.jsFixWidth(this.state.nameScale, this.state.nameWidth)}>
             <div className="user-inner" ref={this.userInnerRef}>
@@ -123,6 +126,7 @@ class Input extends Component {
             className="Input"
             data-active={this.props.active}
             data-side={this.props.side}
+            data-channel={this.props.channel}
             style={{ animationDuration: (this.props.frames * FRAME_DURATION) + 'ms' }}>
             {!!this.props.side && this.renderAction()}
             {!!this.props.side && this.renderUnderline("left")}
@@ -217,9 +221,10 @@ class InputFeed extends Component {
     }
     onOpen = () => {
         console.log("Connected to input feed websocket");
-        const state = { ...INITIAL_INPUT_FEED_STATE }
-        state.connected = true
-        this.setState(state)
+        //const state = { ...INITIAL_INPUT_FEED_STATE }
+        //state.connected = true
+        //this.setState(state)
+        this.setState({ connected: true });
     }
     onClose = () => {
         console.log("Websocket connection closed");
@@ -228,7 +233,7 @@ class InputFeed extends Component {
     }
     onMessage = (ev) => {
         const msg = JSON.parse(ev.data)
-        //console.log(ev.data);
+        console.log(ev.data);
         this.processMessage(msg.type, msg.extra_parameters)
     }
     fixSlideOffset = () => {
@@ -316,6 +321,8 @@ class InputFeed extends Component {
                 runBadgeNumber={input.run_badge_number}
                 pkmnBadgeNumber={input.pkmn_badge_number}
                 side={input.side}
+                channel={input.channel}
+                channelImage={input.channel_image_url}
             />
         })
         const style = {
