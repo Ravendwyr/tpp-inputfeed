@@ -137,21 +137,23 @@ class Input extends Component {
     }
 }
 
+let badgesAndEmblemsAreAvailable = false;
 function User(props) {
-    const retroTheme = props.theme === 'retro';
+    if (!badgesAndEmblemsAreAvailable && (!!props.runBadgeNumber || !!props.pkmnBadgeNumber))
+        badgesAndEmblemsAreAvailable = true;
 
     const runBadgeNumber = props.runBadgeNumber || 1;
     const pkmnBadgeNumber = props.pkmnBadgeNumber || 1
     const pkmnBadgeUrl = "/pkmn-badges/" + String(pkmnBadgeNumber).padStart(3, '0') + ".png"
 
     return <div className="User">
-        {!retroTheme && <img
+        {badgesAndEmblemsAreAvailable && <img
             alt=""
             className="pkmn-badge"
             src={pkmnBadgeUrl}
             data-hide={props.pkmnBadgeNumber === null}
         />}
-        {!retroTheme && <span
+        {badgesAndEmblemsAreAvailable && <span
             className="run-badge"
             data-number={runBadgeNumber}
             data-hide={props.runBadgeNumber === null}
