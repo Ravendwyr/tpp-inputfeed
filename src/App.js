@@ -16,8 +16,10 @@ const arrowImg = {
     down: downArrow
 }
 
-const CORE_ADDRESS = "192.168.1.6"; //"localhost";
-const WS_PORT = 5101;
+//const CORE_ADDRESS = "192.168.1.6"; //"localhost";
+const CORE_ADDRESS = "localhost";
+//const WS_PORT = 5101;
+const WS_PORT = 5001;
 const API_PORT = 5110;
 
 const FRAME_DURATION = 1000 / 60
@@ -328,6 +330,65 @@ class InputFeed extends Component {
                     <img alt="" src={leftArrow} />
                     <img alt="" src={rightArrow} />
                 </div>
+            </div>
+        )
+    }
+}
+
+const INITIAL_TOUCH_DISPLAY_STATE = {};
+
+class TouchDisplay extends Component {
+    constructor(props) {
+        super(props)
+        this.state = INITIAL_TOUCH_DISPLAY_STATE;
+        this.inputs = {};
+    }
+    componentDidMount() {
+        this.connect()
+        //window.addEventListener("resize", this.fixSlideOffset);
+    }
+    componentWillUnmount() {
+        //window.removeEventListener("resize", this.fixSlideOffset);
+    }
+    connect() {
+        const ws = new WebSocket(`ws://${CORE_ADDRESS}:${WS_PORT}/api`)
+        ws.onopen = this.onOpen.bind(this)
+        ws.onclose = this.onClose.bind(this)
+        ws.onmessage = this.onMessage.bind(this)
+    }
+    onOpen() {
+        const state = { ...INITIAL_TOUCH_DISPLAY_STATE }
+        state.connected = true
+        this.setState(state)
+    }
+    onClose() {
+        this.setState({ 'connected': false }, this.connect)
+    }
+    onMessage(ev) {
+        const msg = JSON.parse(ev.data)
+        //console.log(ev.data);
+        console.log(msg);
+        this.processMessage(msg)
+    }
+    processMessage(msg) {
+        //console.log(type, params);
+        if (msg.type === 'new_anarchy_input') {
+            this.inputs[msg.id] = msg;
+        } else if (msg.type === 'anarchy_input_start') {
+            console.log('start', msg);
+            // TODO: Update state with information needed to render
+            // this input.
+        } else if (msg.type === 'anarchy_input_stop') {
+            delete this.inputs[msg.id];
+        }
+    }
+    render() {
+        if (!this.state.connected) {
+            return <div className="TouchDisplay"></div>
+        }
+        return (
+            <div className="TouchDisplay" data-theme={this.props.theme}>
+                test
             </div>
         )
     }
@@ -692,6 +753,11 @@ class App extends Component {
 
             case "/input_feed":
                 return <InputFeed
+                    theme={theme}
+                />;
+            
+            case "/touch_display":
+                return <TouchDisplay
                     theme={theme}
                 />;
 
