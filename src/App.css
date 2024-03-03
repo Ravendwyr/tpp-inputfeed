@@ -134,6 +134,14 @@ body {
     filter: var(--red-filter);
 }
 
+.Input img.channel-image {
+    max-width: 0.6em;
+    max-height: 0.6em;
+    margin-right: 0.4em;
+    position: relative;
+    bottom: 0.1em;
+}
+
 .preload-imgs {
     position: absolute;
     opacity: 0.0;
@@ -182,9 +190,9 @@ body {
     display: inline-block;
 }
 .OverlayTest .Clock        {left:32px; top: 400px;}
-.OverlayTest .Timer        {left:32px; top: 300px;}
+.OverlayTest .Timer        {right:32px; top: 300px;}
 .OverlayTest .BigCountdown {left:32px; top: 200px;}
-.OverlayTest .RetroTitle   {left:32px; top: 40px;}
+.OverlayTest .RetroTitle   {left:0; top: 40px;}
 
 /*.RetroTitle:hover,
 .Clock:hover,
@@ -337,7 +345,16 @@ body {
     justify-self: flex-start;
 }
 
+.Timer[data-theme="retro"] {
+    display:flex;
+    width: 100%;
+    justify-content: flex-end;
+    align-items: center;
+}
 
+.Timer[data-theme="retro"] .inner {
+    flex: 0 0 auto;
+}
 
 /* RetroTitle */
 .RetroTitle {
@@ -348,6 +365,13 @@ body {
     padding-left: calc(1px * var(--multiplier));
     padding-top: calc(1px * var(--multiplier));
     margin-top: 2px;
+    width:100%;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+}
+.RetroTitle .inner {
+    flex: 0 0 auto;
 }
 .RetroTitle .title-line-1 {
     white-space: nowrap;

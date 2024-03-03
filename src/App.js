@@ -92,7 +92,10 @@ class Input extends Component {
     }
     renderName() {
         if (this.props.theme === "retro")
-            return <div className="user">{this.props.user.name}</div>;
+            return <div className="user">
+                {!!this.props.channelImage &&  <img className="channel-image" alt="" src={this.props.channelImage}/>}
+                {this.props.user.name}
+                </div>;
 
         return <div className="user" ref={this.userRef} style={this.jsFixWidth(this.state.nameScale, this.state.nameWidth)}>
             <div className="user-inner" ref={this.userInnerRef}>
@@ -125,6 +128,7 @@ class Input extends Component {
             className="Input"
             data-active={this.props.active}
             data-side={this.props.side}
+            data-channel={this.props.channel}
             style={{ animationDuration: (this.props.frames * FRAME_DURATION) + 'ms' }}>
             {!!this.props.side && this.renderAction()}
             {!!this.props.side && this.renderUnderline("left")}
@@ -135,21 +139,23 @@ class Input extends Component {
     }
 }
 
+let badgesAndEmblemsAreAvailable = false;
 function User(props) {
-    const retroTheme = props.theme === 'retro';
+    if (!badgesAndEmblemsAreAvailable && (!!props.runBadgeNumber || !!props.pkmnBadgeNumber))
+        badgesAndEmblemsAreAvailable = true;
 
     const runBadgeNumber = props.runBadgeNumber || 1;
     const pkmnBadgeNumber = props.pkmnBadgeNumber || 1
     const pkmnBadgeUrl = "/pkmn-badges/" + String(pkmnBadgeNumber).padStart(3, '0') + ".png"
 
     return <div className="User">
-        {!retroTheme && <img
+        {badgesAndEmblemsAreAvailable && <img
             alt=""
             className="pkmn-badge"
             src={pkmnBadgeUrl}
             data-hide={props.pkmnBadgeNumber === null}
         />}
-        {!retroTheme && <span
+        {badgesAndEmblemsAreAvailable && <span
             className="run-badge"
             data-number={runBadgeNumber}
             data-hide={props.runBadgeNumber === null}
@@ -192,35 +198,46 @@ const INITIAL_INPUT_FEED_STATE = {
 }
 
 class InputFeed extends Component {
+    _isMounted = false;
     constructor(props) {
         super(props)
         this.state = INITIAL_INPUT_FEED_STATE;
         this.middleRef = React.createRef()
     }
     componentDidMount() {
+        this._isMounted = true;
         this.connect()
         window.addEventListener("resize", this.fixSlideOffset);
     }
     componentWillUnmount() {
+        this._isMounted = false;
         window.removeEventListener("resize", this.fixSlideOffset);
+        if (this.ws)
+            this.ws.close();
     }
-    connect() {
-        const ws = new WebSocket(`ws://${CORE_ADDRESS}:${WS_PORT}/api`)
-        ws.onopen = this.onOpen.bind(this)
-        ws.onclose = this.onClose.bind(this)
-        ws.onmessage = this.onMessage.bind(this)
+    connect = () => {
+        if (this.ws)
+            this.ws.close();
+        this.ws = new WebSocket(`ws://${CORE_ADDRESS}:${WS_PORT}/api`)
+        this.ws.onopen = this.onOpen;
+        this.ws.onclose = this.onClose;
+        this.ws.onmessage = this.onMessage;
     }
-    onOpen() {
-        const state = { ...INITIAL_INPUT_FEED_STATE }
-        state.connected = true
-        this.setState(state)
+    onOpen = () => {
+        console.log("Connected to input feed websocket");
+        //const state = { ...INITIAL_INPUT_FEED_STATE }
+        //state.connected = true
+        //this.setState(state)
+        this.setState({ connected: true });
     }
-    onClose() {
-        this.setState({ 'connected': false }, this.connect)
+    onClose = () => {
+        console.log("Websocket connection closed");
+        if (this._isMounted)
+            this.setState({ 'connected': false }, this.connect)
     }
-    onMessage(ev) {
+    onMessage = (ev) => {
         const msg = JSON.parse(ev.data)
-        //console.log(ev.data);
+        console.log(ev.data);
         this.processMessage(msg.type, msg.extra_parameters)
     }
     fixSlideOffset = () => {
@@ -308,6 +325,8 @@ class InputFeed extends Component {
                 runBadgeNumber={input.run_badge_number}
                 pkmnBadgeNumber={input.pkmn_badge_number}
                 side={input.side}
+                channel={input.channel}
+                channelImage={input.channel_image_url}
             />
         })
         const style = {
@@ -409,7 +428,7 @@ function ISODateString(d) {
 }
 
 
-function secondsToDurationStr(seconds, spacing, hideZero) {
+function secondsToDurationStr(seconds, spacing, hideZero, twoSegments) {
     let prefix = "";
     if (seconds < 0) {
         prefix = "-";
@@ -420,17 +439,12 @@ function secondsToDurationStr(seconds, spacing, hideZero) {
     const h = Math.floor(seconds / 60 / 60) % 24;
     const d = Math.floor(seconds / 60 / 60 / 24);
 
-    let p = "";
-    if (spacing) {
-        p = " ";
-    }
-
     return prefix + [
         (d > 0 || !hideZero) && (pad(d) + "d"),
         (h > 0 || d > 0 || !hideZero) && (pad(h) + "h"),
-        (m > 0 || h > 0 || d > 0 || !hideZero) && (pad(m) + "m"),
+        (m > 0 || h > 0 || d > 0 || !hideZero || !!twoSegments) && (pad(m) + "m"),
         (pad(s) + "s")
-    ].filter(s=>!!s).join(p);
+    ].filter(s => !!s).slice(0, twoSegments ? 2 : undefined).join(spacing ? " " : "");
 }
 
 
@@ -479,7 +493,7 @@ class OverlayComponent extends Component {
     _lastTick = 0;
     tick = () => {
         if (!this.onTick || !this._mounted)
-           return;
+            return;
         const now = new Date();
         if (Math.floor(now.valueOf() / this._tickRateMs) !== Math.floor(this._lastTick / this._tickRateMs))
             this.onTick(now);
@@ -607,31 +621,41 @@ class BigCountdown extends OverlayComponent {
 }
 
 class LastSave extends OverlayComponent {
+    _isMounted = false;
     constructor(props) {
         super(props);
         this.state.now = new Date();
     }
     componentDidMount() {
+        this._isMounted = true;
         super.componentDidMount();
-
-        this.socket = new WebSocket(`ws://${this.props.wsAddress}`);
-        this.socket.addEventListener("open", ()=>console.log("Last Save websocket connected"));
-        this.socket.addEventListener("close", ()=>console.log("Last Save websocket closed"));
-        this.socket.addEventListener("error", err=>console.error(err));
-        this.socket.addEventListener("message", this.receiveData);
+        this.connect();
     }
     componentWillUnmount() {
-        this.socket.close();
+        this._isMounted = false;
+        if (this.socket)
+            this.socket.close();
     }
     onTick(now) {
         this.setState({ now });
+    }
+    connect = () => {
+        this.socket = new WebSocket(`ws://${this.props.wsAddress}`);
+        this.socket.addEventListener("open", () => console.log("Last Save websocket connected"));
+        this.socket.addEventListener("close", () => {
+            console.log("Last Save websocket closed");
+            if (this._isMounted)
+                setTimeout(this.connect, 2000);
+        });
+        this.socket.addEventListener("error", err => console.error(err));
+        this.socket.addEventListener("message", this.receiveData);
     }
     receiveData = message => {
         try {
             const data = JSON.parse(message.data);
             const screenName = this.props.screenName.toLowerCase().trim();
-            const date = Math.floor(Date.parse(data.find(screen=>screen.Name.toLowerCase() === screenName).LastMatchTime) / 1000) * 1000;
-            if (this.state.date !== date)
+            const date = Math.floor(Date.parse(data.find(screen => screen.Name.toLowerCase() === screenName).LastMatchTime) / 1000) * 1000;
+            if (this.state.date !== date && Date.now() - date < (255 * 24 * 60 * 60 * 1000)) // Date is not the same and date is not more than 255d old
                 this.setState({ date });
         }
         catch (e) {
@@ -643,9 +667,12 @@ class LastSave extends OverlayComponent {
         if (!this.state.date)
             return null;
         const secondsSinceSave = Math.floor((this.state.now - this.state.date) / 1000);
-        let durationStr = secondsToDurationStr(secondsSinceSave, false, true);
+        let durationStr = secondsToDurationStr(secondsSinceSave, false, true, true);
         const style = super.getStyle();
 
+        let label = this.props.label || "Saved {} ago";
+        if (!label.includes("{}"))
+            label += " {}";
 
         return <div
             className="BigCountdown"
@@ -653,11 +680,66 @@ class LastSave extends OverlayComponent {
             data-theme={this.props.theme}
         >
             <span className="inner" ref={this.innerRef}>
-                {this.props.label || "Time since last save: "}{durationStr}
+                {label.replace("{}", durationStr)}
             </span>
         </div>
     }
 }
+
+class InputCounter extends OverlayComponent {
+    _isMounted = false;
+    constructor(props) {
+        super(props);
+        this.state = { inputCount: 0 };
+    }
+    componentDidMount() {
+        this._isMounted = true;
+        super.componentDidMount();
+        this.connect();
+    }
+    componentWillUnmount() {
+        this._isMounted = false;
+        if (this.socket)
+            this.socket.close();
+    }
+    connect = () => {
+        this.socket = new WebSocket(`ws://${CORE_ADDRESS}:${WS_PORT}/api`)
+        this.socket.addEventListener("open", () => console.log("Input Counter websocket connected"));
+        this.socket.addEventListener("close", () => {
+            console.log("Input Counter websocket closed");
+            if (this._isMounted)
+                setTimeout(this.connect, 500);
+        });
+        this.socket.addEventListener("error", err => console.error(err));
+        this.socket.addEventListener("message", this.receiveData);
+    }
+    receiveData = message => {
+        const msg = JSON.parse(message.data)
+        //console.dir(msg);
+        if (msg.type === "button_press_update" && msg.extra_parameters && msg.extra_parameters.presses)
+            this.setState({ inputCount: msg.extra_parameters.presses })
+    }
+    render() {
+        if (this.state.inputCount <= 0)
+            return null;
+        const style = super.getStyle();
+
+        const inputCount = this.state.inputCount.toLocaleString();
+        // const padding = new Array(Math.max((this.props.digits || 8) - inputCount.length, 0)).fill("0", 0).join('');
+
+        return <div
+            className="BigCountdown InputCounter"
+            style={style}
+            data-theme={this.props.theme}
+        >
+            <span className="inner" ref={this.innerRef}>
+                {/* <span className='padding'>{padding}</span> */}
+                <span className='inputs'>{inputCount}</span>
+            </span>
+        </div>
+    }
+}
+
 
 class App extends Component {
     state = { fontLoaded: false };
@@ -717,9 +799,9 @@ class App extends Component {
             runStartDate = Date.parse(runStartDate);
         }
 
-        switch(window.location.pathname) {
+        switch (window.location.pathname) {
             default:
-                return <div>Unexpected URL path. Valid paths are /retro_title /clock /timer /countdown /last_save and /input_feed.</div>
+                return <div>Unexpected URL path. Valid paths are /retro_title /clock /timer /countdown /last_save /input_feed and /input_counter.</div>
 
             case "/clock":
                 return <Clock
@@ -761,13 +843,19 @@ class App extends Component {
                     theme={theme}
                 />;
 
+            case "/input_counter":
+                return <InputCounter
+                    theme={theme}
+                    digits={params.get("digits")}
+                />;
+
             case "/title":
             case "/retro_title":
                 return <RetroTitle
                     width="540"
                     height="100"
                     autoscale={true}
-                    theme={window.location.pathname === "/retro_title" ? "retro": theme}
+                    theme={window.location.pathname === "/retro_title" ? "retro" : theme}
                 />
 
             case "/":
