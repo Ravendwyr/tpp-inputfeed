@@ -354,7 +354,27 @@ class InputFeed extends Component {
     }
 }
 
-const INITIAL_TOUCH_DISPLAY_STATE = {};
+function TouchTarget(props) {
+    const style = {
+        'width': props.width + 'px',
+        'height': props.height + 'px',
+        "transform": "translate(" + props.x + "px, " + props.y + "px)",
+    }
+    return <div
+        className="TouchTarget"
+        data-active={props.active}
+        style={style}
+    ></div>
+}
+
+const INITIAL_TOUCH_DISPLAY_STATE = {
+    "x": null,
+    "y": null,
+    "x2": null,
+    "y2": null,
+    "hold": null,
+    "active": null,
+};
 
 class TouchDisplay extends Component {
     constructor(props) {
@@ -392,22 +412,56 @@ class TouchDisplay extends Component {
     processMessage(msg) {
         //console.log(type, params);
         if (msg.type === 'new_anarchy_input') {
-            this.inputs[msg.id] = msg;
+            this.inputs[msg.id] = msg.extra_parameters;
         } else if (msg.type === 'anarchy_input_start') {
-            console.log('start', msg);
-            // TODO: Update state with information needed to render
-            // this input.
+            this.setState({ ...INITIAL_TOUCH_DISPLAY_STATE});
+            // The original message contains the input information.
+            const origMsg = this.inputs[msg.id];
+            if(!origMsg) {
+                console.error("original message missing");
+                return;
+            }
+            const regex = /(\d+),(\d+)(>(\d+),(\d+))?/;
+            const touch_str = origMsg.button_set_labels[0];
+            if (!touch_str) {
+                console.error("no touch string", origMsg);
+                return;
+            }
+            console.log("start", touch_str);
+            const match = touch_str.match(regex);
+            if (!match) {
+                console.error("invalid touch string", touch_str);
+                return;
+            }
+            const x = parseInt(match[1]);
+            const y = parseInt(match[2]);
+            const x2 = match[4] ? parseInt(match[4]) : null;
+            const y2 = match[5] ? parseInt(match[5]) : null;
+            const hold = false;  // TODO: get hold from message
+            const active = true;
+            this.setState({ x, y, x2, y2, hold, active });
+
         } else if (msg.type === 'anarchy_input_stop') {
+            if(this.state.active) {
+                this.setState({active: false});
+            }
             delete this.inputs[msg.id];
         }
     }
     render() {
-        if (!this.state.connected) {
+        if (this.state.x === null) {
             return <div className="TouchDisplay"></div>
         }
+        const size = 50;
         return (
             <div className="TouchDisplay" data-theme={this.props.theme}>
-                test
+                <TouchTarget 
+                    x={this.state.x - (size / 2)}
+                    y={this.state.y - (size / 2)}
+                    width={size}
+                    height={size}
+                    active={this.state.active}
+                />
             </div>
         )
     }
