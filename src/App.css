@@ -394,6 +394,6 @@ body {
     border-radius: 50%;
     transform-origin: center center;
 }
-.TouchTarget[data-active="false"] {
+.TouchTarget[data-hold="false"][data-active="false"] {
     background: radial-gradient(circle, transparent 50%, black 40%);
 }

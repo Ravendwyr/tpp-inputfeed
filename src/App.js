@@ -363,6 +363,7 @@ function TouchTarget(props) {
     return <div
         className="TouchTarget"
         data-active={props.active}
+        data-hold={props.hold}
         style={style}
     ></div>
 }
@@ -437,8 +438,13 @@ class TouchDisplay extends Component {
             const y = parseInt(match[2]);
             const x2 = match[4] ? parseInt(match[4]) : null;
             const y2 = match[5] ? parseInt(match[5]) : null;
-            const hold = false;  // TODO: get hold from message
             const active = true;
+            let hold = false;
+            if(origMsg.button_set_labels.length > 1) {
+                if(origMsg.button_set_labels[1] === "hold") {
+                    hold = true;
+                }
+            }
             this.setState({ x, y, x2, y2, hold, active });
 
         } else if (msg.type === 'anarchy_input_stop') {
@@ -461,6 +467,7 @@ class TouchDisplay extends Component {
                     width={size}
                     height={size}
                     active={this.state.active}
+                    hold={this.state.hold}
                 />
             </div>
         )
