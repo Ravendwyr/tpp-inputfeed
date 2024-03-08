@@ -355,17 +355,34 @@ class InputFeed extends Component {
 }
 
 function TouchTarget(props) {
+    console.log(props)
+    let touchSlide = "";
     const style = {
         'width': props.width + 'px',
         'height': props.height + 'px',
-        "transform": "translate(" + props.x + "px, " + props.y + "px)",
+        "top": props.y,
+        "left": props.x,
+    }
+    if(props.x2 !== null && props.y2 !== null) {
+        touchSlide = `
+            @keyframes touchSlide {
+                from { transform: translate(0px, 0px); }
+                to { transform: translate(${props.x2 - props.x}px, ${props.y2 - props.y}px); }
+            }
+        `;
+        
+        const ms = props.frames * FRAME_DURATION;
+        
+        style["animation"] = "touchSlide " + ms + "ms linear both";
     }
     return <div
         className="TouchTarget"
         data-active={props.active}
         data-hold={props.hold}
         style={style}
-    ></div>
+    >
+        <style>{touchSlide}</style>
+    </div>
 }
 
 const INITIAL_TOUCH_DISPLAY_STATE = {
@@ -375,6 +392,7 @@ const INITIAL_TOUCH_DISPLAY_STATE = {
     "y2": null,
     "hold": null,
     "active": null,
+    "frames": null,
 };
 
 class TouchDisplay extends Component {
@@ -411,6 +429,7 @@ class TouchDisplay extends Component {
         this.processMessage(msg)
     }
     processMessage(msg) {
+        console.log(msg);
         //console.log(type, params);
         if (msg.type === 'new_anarchy_input') {
             this.inputs[msg.id] = msg.extra_parameters;
@@ -438,6 +457,7 @@ class TouchDisplay extends Component {
             const y = parseInt(match[2]);
             const x2 = match[4] ? parseInt(match[4]) : null;
             const y2 = match[5] ? parseInt(match[5]) : null;
+            
             const active = true;
             let hold = false;
             if(origMsg.button_set_labels.length > 1) {
@@ -445,7 +465,10 @@ class TouchDisplay extends Component {
                     hold = true;
                 }
             }
-            this.setState({ x, y, x2, y2, hold, active });
+            
+            const frames = msg.extra_parameters.frames;
+
+            this.setState({ x, y, x2, y2, hold, active, frames });
 
         } else if (msg.type === 'anarchy_input_stop') {
             if(this.state.active) {
@@ -458,16 +481,25 @@ class TouchDisplay extends Component {
         if (this.state.x === null) {
             return <div className="TouchDisplay"></div>
         }
-        const size = 50;
+        const size = this.props.size;
+        let x2 = null;
+        let y2 = null;
+        if(this.state.x2 !== null) {
+            x2 = this.state.x2 - (size / 2);
+            y2 = this.state.y2 - (size / 2);
+        }
         return (
             <div className="TouchDisplay" data-theme={this.props.theme}>
                 <TouchTarget 
                     x={this.state.x - (size / 2)}
                     y={this.state.y - (size / 2)}
+                    x2={x2}
+                    y2={y2}
                     width={size}
                     height={size}
                     active={this.state.active}
                     hold={this.state.hold}
+                    frames={this.state.frames}
                 />
             </div>
         )
@@ -902,6 +934,7 @@ class App extends Component {
             case "/touch_display":
                 return <TouchDisplay
                     theme={theme}
+                    size={25}
                 />;
 
             case "/input_counter":

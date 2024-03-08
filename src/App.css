@@ -390,10 +390,11 @@ body {
 
 /* TouchTarget */
 .TouchTarget {
-    background: radial-gradient(circle, transparent 50%, white 40%);
+    background: radial-gradient(circle, transparent 30%, white 30%);
     border-radius: 50%;
     transform-origin: center center;
+    position: absolute;
 }
 .TouchTarget[data-hold="false"][data-active="false"] {
-    background: radial-gradient(circle, transparent 50%, black 40%);
+    background: radial-gradient(circle, transparent 30%, black 30%);
 }
