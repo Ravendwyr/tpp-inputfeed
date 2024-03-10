@@ -397,4 +397,5 @@ body {
 }
 .TouchTarget[data-hold="false"][data-active="false"] {
     background: radial-gradient(circle, transparent 30%, black 30%);
+    opacity: 0.5;
 }
