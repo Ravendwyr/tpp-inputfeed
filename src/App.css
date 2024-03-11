@@ -388,7 +388,16 @@ body {
 }
 
 
+
 /* TouchTarget */
+@keyframes touchTargetHide {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
 .TouchTarget {
     background: radial-gradient(circle, transparent 30%, white 30%);
     border-radius: 50%;
@@ -397,5 +406,4 @@ body {
 }
 .TouchTarget[data-hold="false"][data-active="false"] {
     background: radial-gradient(circle, transparent 30%, black 30%);
-    opacity: 0.5;
 }

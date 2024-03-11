@@ -363,6 +363,9 @@ function TouchTarget(props) {
         "top": props.y,
         "left": props.x,
     }
+    const ms = props.frames * FRAME_DURATION;
+    const hideDelayMs = 1000;
+    const hideDurationMs = 500;
     if(props.x2 !== null && props.y2 !== null) {
         touchSlide = `
             @keyframes touchSlide {
@@ -371,9 +374,11 @@ function TouchTarget(props) {
             }
         `;
         
-        const ms = props.frames * FRAME_DURATION;
-        
-        style["animation"] = "touchSlide " + ms + "ms linear both";
+        style["animation"] = "touchSlide " + ms + "ms linear both, touchTargetHide " + hideDurationMs + "ms linear both";
+        style["animation-delay"] = "0ms, " + (ms + hideDelayMs) + "ms";
+    } else {
+        style["animation"] = "touchTargetHide " + hideDurationMs + "ms linear both";
+        style["animation-delay"] = (ms + hideDelayMs) + "ms";
     }
     return <div
         className="TouchTarget"
