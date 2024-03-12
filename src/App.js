@@ -450,22 +450,12 @@ class TouchDisplay extends Component {
                 console.error("original message missing");
                 return;
             }
-            const regex = /(\d+),(\d+)(>(\d+),(\d+))?/;
-            const touch_str = origMsg.button_set_labels[0];
-            if (!touch_str) {
-                console.error("no touch string", origMsg);
-                return;
-            }
-            console.log("start", touch_str);
-            const match = touch_str.match(regex);
-            if (!match) {
-                console.error("invalid touch string", touch_str);
-                return;
-            }
-            const x = parseInt(match[1]);
-            const y = parseInt(match[2]);
-            const x2 = match[4] ? parseInt(match[4]) : null;
-            const y2 = match[5] ? parseInt(match[5]) : null;
+
+            console.log(origMsg);
+            const x = origMsg.x;
+            const y = origMsg.y;
+            const x2 = origMsg.x2;
+            const y2 = origMsg.y2;
             
             const active = true;
             let hold = false;
