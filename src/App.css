@@ -19,6 +19,10 @@
     src: url("./fonts/pkmndp.otf");
 }
 @font-face {
+    font-family: tpp;
+    src: url("./fonts/tpp-glyphs.woff2");
+}
+@font-face {
     font-family: gen1;
     src: url("./fonts/pokered-modern-regular.woff2");
     ascent-override: 102.5%;
@@ -127,12 +131,33 @@ body {
     height: 0.68em;
     vertical-align: baseline;
 }
-.Input[data-side="left"] .arrow {
+span.arrow {
+    font-family: tpp;
+    font-size: 1em;
+    margin: 0 -0.1em;
+    transform-origin: center bottom;
+    transform: scale(0.68) translateY(16%);
+    display: inline-block;
+    vertical-align: center;
+}
+span.arrow[data-arrow="up"]::before {
+    content: "\2B06";
+}
+span.arrow[data-arrow="right"]::before {
+    content: "\2B95";
+}
+span.arrow[data-arrow="down"]::before {
+    content: "\2B07";
+}
+span.arrow[data-arrow="left"]::before {
+    content: "\2B05";
+}
+/* .Input[data-side="left"] .arrow {
     filter: var(--blue-filter);
 }
 .Input[data-side="right"] .arrow {
     filter: var(--red-filter);
-}
+} */
 
 .Input img.channel-image {
     max-width: 0.6em;
