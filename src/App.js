@@ -16,10 +16,10 @@ import './RunBadge.css'
 //     down: downArrow
 // }
 
-const CORE_ADDRESS = "192.168.1.6"; //"localhost";
-//const CORE_ADDRESS = "localhost";
-const WS_PORT = 5101;
-//const WS_PORT = 5001;
+//const CORE_ADDRESS = "192.168.1.6"; //"localhost";
+const CORE_ADDRESS = "localhost";
+//const WS_PORT = 5101;
+const WS_PORT = 5001;
 const API_PORT = 5110;
 
 const FRAME_DURATION = 1000 / 60
@@ -436,11 +436,11 @@ class TouchDisplay extends Component {
     }
     processMessage(msg) {
         console.log(msg);
-        if (this.props.side && msg.extra_parameters.side !== this.props.side) {
-            return;
-        }
-        //console.log(type, params);
         if (msg.type === 'new_anarchy_input') {
+            // Only the `new_anarchy_input` contains the side information.
+            if (this.props.side && msg.extra_parameters.side !== this.props.side) {
+                return;
+            }
             this.inputs[msg.id] = msg.extra_parameters;
         } else if (msg.type === 'anarchy_input_start') {
             this.setState({ ...INITIAL_TOUCH_DISPLAY_STATE});
