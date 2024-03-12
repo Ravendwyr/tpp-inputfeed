@@ -452,10 +452,15 @@ class TouchDisplay extends Component {
             }
 
             console.log(origMsg);
-            const x = origMsg.x;
-            const y = origMsg.y;
+            const x = origMsg.x || null;
+            const y = origMsg.y || null;
             const x2 = origMsg.x2 || null;
             const y2 = origMsg.y2 || null;
+
+            // Nothing to show.
+            if(x === null) {
+                return;
+            }
             
             const active = true;
             let hold = false;
