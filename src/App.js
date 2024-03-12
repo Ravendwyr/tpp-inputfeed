@@ -435,6 +435,9 @@ class TouchDisplay extends Component {
     }
     processMessage(msg) {
         console.log(msg);
+        if (this.props.side && msg.extra_parameters.side !== this.props.side) {
+            return;
+        }
         //console.log(type, params);
         if (msg.type === 'new_anarchy_input') {
             this.inputs[msg.id] = msg.extra_parameters;
@@ -939,6 +942,7 @@ class App extends Component {
             case "/touch_display":
                 return <TouchDisplay
                     theme={theme}
+                    side={params.get("side")}
                     size={25}
                 />;
 
