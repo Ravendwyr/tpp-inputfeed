@@ -375,10 +375,10 @@ function TouchTarget(props) {
         `;
         
         style["animation"] = "touchSlide " + ms + "ms linear both, touchTargetHide " + hideDurationMs + "ms linear both";
-        style["animation-delay"] = "0ms, " + (ms + hideDelayMs) + "ms";
+        style["animationDelay"] = "0ms, " + (ms + hideDelayMs) + "ms";
     } else {
         style["animation"] = "touchTargetHide " + hideDurationMs + "ms linear both";
-        style["animation-delay"] = (ms + hideDelayMs) + "ms";
+        style["animationDelay"] = (ms + hideDelayMs) + "ms";
     }
     return <div
         className="TouchTarget"
