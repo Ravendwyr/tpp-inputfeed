@@ -16,11 +16,9 @@ import './RunBadge.css'
 //     down: downArrow
 // }
 
-const CORE_ADDRESS = "192.168.1.6"; //"localhost";
-//const CORE_ADDRESS = "localhost";
-const WS_PORT = 5101;
-//const WS_PORT = 5001;
-const API_PORT = 5110;
+const CORE_ADDRESS = process.env.REACT_APP_CORE_ADDRESS;
+const WS_PORT = parseInt(process.env.REACT_APP_WS_PORT);
+const API_PORT = parseInt(process.env.REACT_APP_API_PORT);
 
 const FRAME_DURATION = 1000 / 60
 const INPUT_HEIGHT = 50  // px
