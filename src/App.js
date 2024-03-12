@@ -2,24 +2,24 @@ import FontFaceObserver from 'fontfaceobserver';
 
 import React, { Component } from 'react'
 
-import rightArrow from './images/right90.png'
-import leftArrow from './images/left90.png'
-import upArrow from './images/up90.png'
-import downArrow from './images/down90.png'
+// import rightArrow from './images/right90.png'
+// import leftArrow from './images/left90.png'
+// import upArrow from './images/up90.png'
+// import downArrow from './images/down90.png'
 import './App.css'
 import './RunBadge.css'
 
-const arrowImg = {
-    right: rightArrow,
-    left: leftArrow,
-    up: upArrow,
-    down: downArrow
-}
+// const arrowImg = {
+//     right: rightArrow,
+//     left: leftArrow,
+//     up: upArrow,
+//     down: downArrow
+// }
 
-//const CORE_ADDRESS = "192.168.1.6"; //"localhost";
-const CORE_ADDRESS = "localhost";
-//const WS_PORT = 5101;
-const WS_PORT = 5001;
+const CORE_ADDRESS = "192.168.1.6"; //"localhost";
+//const CORE_ADDRESS = "localhost";
+const WS_PORT = 5101;
+//const WS_PORT = 5001;
 const API_PORT = 5110;
 
 const FRAME_DURATION = 1000 / 60
@@ -35,8 +35,9 @@ function ButtonSet(props) {
             case "up":
             case "down":
                 if (props.theme === "retro")
-                    break;
-                return wrap(<img alt={button} className="arrow" src={arrowImg[button]} />);
+                    break; // spell them out
+                // return wrap(<img alt={button} className="arrow" src={arrowImg[button]} />);
+                return wrap(<span data-arrow={button} className="arrow" />); // use glyphs
             case "hold":
                 return wrap("-");
             default:
@@ -343,12 +344,12 @@ class InputFeed extends Component {
                         {inputComponents}
                     </div>
                 </div>
-                <div className="preload-imgs">
+                {/* <div className="preload-imgs">
                     <img alt="" src={upArrow} />
                     <img alt="" src={downArrow} />
                     <img alt="" src={leftArrow} />
                     <img alt="" src={rightArrow} />
-                </div>
+                </div> */}
             </div>
         )
     }
