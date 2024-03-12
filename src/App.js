@@ -16,10 +16,10 @@ const arrowImg = {
     down: downArrow
 }
 
-//const CORE_ADDRESS = "192.168.1.6"; //"localhost";
-const CORE_ADDRESS = "localhost";
-//const WS_PORT = 5101;
-const WS_PORT = 5001;
+const CORE_ADDRESS = "192.168.1.6"; //"localhost";
+//const CORE_ADDRESS = "localhost";
+const WS_PORT = 5101;
+//const WS_PORT = 5001;
 const API_PORT = 5110;
 
 const FRAME_DURATION = 1000 / 60
