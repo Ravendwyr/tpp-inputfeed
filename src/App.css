@@ -161,6 +161,13 @@ span.arrow[data-arrow="left"]::before {
 } */
 
 .Input img.channel-image {
+    max-width: 0.7em;
+    max-height: 0.7em;
+    margin-right: 0.2em;
+    vertical-align: baseline;
+}
+
+.InputFeed[data-theme="retro"] .Input img.channel-image {
     max-width: 0.6em;
     max-height: 0.6em;
     margin-right: 0.4em;

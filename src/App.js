@@ -99,6 +99,8 @@ class Input extends Component {
         return <div className="user" ref={this.userRef} style={this.jsFixWidth(this.state.nameScale, this.state.nameWidth)}>
             <div className="user-inner" ref={this.userInnerRef}>
                 <User
+                    channel={this.props.channel}
+                    channelImage={this.props.channelImage}
                     user={this.props.user}
                     theme={this.props.theme}
                     runBadgeNumber={this.props.runBadgeNumber}
@@ -145,22 +147,25 @@ function User(props) {
 
     const runBadgeNumber = props.runBadgeNumber || 1;
     const pkmnBadgeNumber = props.pkmnBadgeNumber || 1
-    const pkmnBadgeUrl = "/pkmn-badges/" + String(pkmnBadgeNumber).padStart(3, '0') + ".png"
+    const pkmnBadgeUrl = "/pkmn-badges/" + String(pkmnBadgeNumber).padStart(3, '0') + ".png";
+
+    const showBadges = badgesAndEmblemsAreAvailable && !props.channelImage
 
     return <div className="User">
-        {badgesAndEmblemsAreAvailable && <img
+        {showBadges && <img
             alt=""
             className="pkmn-badge"
             src={pkmnBadgeUrl}
             data-hide={props.pkmnBadgeNumber === null}
         />}
-        {badgesAndEmblemsAreAvailable && <span
+        {showBadges && <span
             className="run-badge"
             data-number={runBadgeNumber}
             data-hide={props.runBadgeNumber === null}
         >
             {runBadgeNumber}
         </span>}
+        {!!props.channelImage && <img className="channel-image" alt="" src={props.channelImage} />}
         <span className="name">{props.user.name}</span>
     </div>
 }
