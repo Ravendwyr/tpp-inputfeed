@@ -92,9 +92,9 @@ class Input extends Component {
     renderName() {
         if (this.props.theme === "retro")
             return <div className="user">
-                {!!this.props.channelImage &&  <img className="channel-image" alt="" src={this.props.channelImage}/>}
+                {!!this.props.channelImage && <img className="channel-image" alt="" src={this.props.channelImage} />}
                 {this.props.user.name}
-                </div>;
+            </div>;
 
         return <div className="user" ref={this.userRef} style={this.jsFixWidth(this.state.nameScale, this.state.nameWidth)}>
             <div className="user-inner" ref={this.userInnerRef}>
@@ -194,6 +194,7 @@ const INITIAL_INPUT_FEED_STATE = {
     'slidePositionOffset': lastInitSlidePositionOffset,
     'culledInputCount': 0,
     'slideSpeed': 8000,
+    'paused': false
 }
 
 class InputFeed extends Component {
@@ -237,7 +238,8 @@ class InputFeed extends Component {
     onMessage = (ev) => {
         const msg = JSON.parse(ev.data)
         console.log(ev.data);
-        this.processMessage(msg.type, msg.extra_parameters)
+        if (!this.state.paused)
+            this.processMessage(msg.type, msg.extra_parameters)
     }
     fixSlideOffset = () => {
         const newSlidePositionOffset = window.innerHeight * (2 / 3);
@@ -313,8 +315,8 @@ class InputFeed extends Component {
     }
     render() {
         let self = this
-        const inputComponents = this.state.inputs.map(function (input) {
-            return <Input
+        const inputComponents = this.state.inputs.map(input =>
+            <Input
                 theme={self.props.theme}
                 active={self.state.activeInputId === input.id}
                 key={input.id}
@@ -327,16 +329,16 @@ class InputFeed extends Component {
                 channel={input.channel}
                 channelImage={input.channel_image_url}
             />
-        })
+        );
         const style = {
             'transform': 'translateY(' + this.state.slidePosition * -1 + 'px)',
             'transition': 'transform ' + this.state.slideSpeed + 'ms linear'
         }
-        if (!this.state.connected) {
-            return <div className="InputFeed"></div>
-        }
+        // if (!this.state.connected) {
+        //     return <div className="InputFeed"></div>
+        // }
         return (
-            <div className="InputFeed" data-theme={this.props.theme}>
+            <div className="InputFeed" data-theme={this.props.theme} onClick={() => this.setState(s => ({ paused: !s.paused }))}>
                 <div style={style} ref={this.middleRef}>
                     <div style={{ 'transform': 'translateY(' + this.state.slidePositionOffset + 'px)' }}>
                         {inputComponents}
@@ -365,14 +367,14 @@ function TouchTarget(props) {
     const ms = props.frames * FRAME_DURATION;
     const hideDelayMs = 1000;
     const hideDurationMs = 500;
-    if(props.x2 !== null && props.y2 !== null) {
+    if (props.x2 !== null && props.y2 !== null) {
         touchSlide = `
             @keyframes touchSlide {
                 from { transform: translate(0px, 0px); }
                 to { transform: translate(${props.x2 - props.x}px, ${props.y2 - props.y}px); }
             }
         `;
-        
+
         style["animation"] = "touchSlide " + ms + "ms linear both, touchTargetHide " + hideDurationMs + "ms linear both";
         style["animationDelay"] = "0ms, " + (ms + hideDelayMs) + "ms";
     } else {
@@ -441,10 +443,10 @@ class TouchDisplay extends Component {
             }
             this.inputs[msg.id] = msg.extra_parameters;
         } else if (msg.type === 'anarchy_input_start') {
-            this.setState({ ...INITIAL_TOUCH_DISPLAY_STATE});
+            this.setState({ ...INITIAL_TOUCH_DISPLAY_STATE });
             // The original message contains the input information.
             const origMsg = this.inputs[msg.id];
-            if(!origMsg) {
+            if (!origMsg) {
                 console.error("original message missing");
                 return;
             }
@@ -456,25 +458,25 @@ class TouchDisplay extends Component {
             const y2 = origMsg.y2 ?? null;
 
             // Nothing to show.
-            if(x === null) {
+            if (x === null) {
                 return;
             }
-            
+
             const active = true;
             let hold = false;
-            if(origMsg.button_set_labels.length > 1) {
-                if(origMsg.button_set_labels[1] === "hold") {
+            if (origMsg.button_set_labels.length > 1) {
+                if (origMsg.button_set_labels[1] === "hold") {
                     hold = true;
                 }
             }
-            
+
             const frames = msg.extra_parameters.frames;
 
             this.setState({ x, y, x2, y2, hold, active, frames });
 
         } else if (msg.type === 'anarchy_input_stop') {
-            if(this.state.active) {
-                this.setState({active: false});
+            if (this.state.active) {
+                this.setState({ active: false });
             }
             delete this.inputs[msg.id];
         }
@@ -486,13 +488,13 @@ class TouchDisplay extends Component {
         const size = this.props.size;
         let x2 = null;
         let y2 = null;
-        if(this.state.x2 !== null) {
+        if (this.state.x2 !== null) {
             x2 = this.state.x2 - (size / 2);
             y2 = this.state.y2 - (size / 2);
         }
         return (
             <div className="TouchDisplay" data-theme={this.props.theme}>
-                <TouchTarget 
+                <TouchTarget
                     x={this.state.x - (size / 2)}
                     y={this.state.y - (size / 2)}
                     x2={x2}
@@ -932,7 +934,7 @@ class App extends Component {
                 return <InputFeed
                     theme={theme}
                 />;
-            
+
             case "/touch_display":
                 return <TouchDisplay
                     theme={theme}
