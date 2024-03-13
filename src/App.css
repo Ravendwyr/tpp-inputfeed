@@ -10,8 +10,8 @@
     --red: #943a3a;*/
     --blue: #4c6aff;
     --red: red;
-    --blue-filter: invert(100%) invert(41%) sepia(45%) saturate(5617%) hue-rotate(220deg) brightness(101%) contrast(104%);
-    --red-filter: invert(100%) invert(12%) sepia(71%) saturate(7476%) hue-rotate(359deg) brightness(108%) contrast(115%);
+    /* --blue-filter: invert(100%) invert(41%) sepia(45%) saturate(5617%) hue-rotate(220deg) brightness(101%) contrast(104%);
+    --red-filter: invert(100%) invert(12%) sepia(71%) saturate(7476%) hue-rotate(359deg) brightness(108%) contrast(115%); */
 }
 
 @font-face {
@@ -136,9 +136,10 @@ span.arrow {
     font-size: 1em;
     margin: 0 -0.1em;
     transform-origin: center bottom;
-    transform: scale(0.68) translateY(16%);
+    transform: scale(0.68) translateY(8%);
     display: inline-block;
     vertical-align: center;
+    line-height: 1em;
 }
 span.arrow[data-arrow="up"]::before {
     content: "\2B06";
