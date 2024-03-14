@@ -173,19 +173,23 @@ function User(props) {
 function findInputById(inputs, inputId) {
     for (let i = 0; i < inputs.length; i++) {
         if (inputs[i].id === inputId) {
-            return inputs[i]
+            return inputs[i];
         }
     }
 }
 
 function findInputRangeById(inputs, startInputId, endInputId) {
-    const result = []
+    const result = [];
+    let foundFirst = false;
     for (let i = 0; i < inputs.length; i++) {
-        if (inputs[i].id >= startInputId && inputs[i].id < endInputId) {
-            result.push(inputs[i])
-        }
+        if (inputs[i].id == startInputId)
+            foundFirst = true;
+        if (inputs[i].id == endInputId)
+            break;
+        if (foundFirst)
+            result.push(inputs[i]);
     }
-    return result
+    return result;
 }
 
 let lastInitSlidePositionOffset = window.innerHeight * (2 / 3);
