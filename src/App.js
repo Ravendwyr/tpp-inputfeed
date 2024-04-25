@@ -25,8 +25,13 @@ const INPUT_HEIGHT = 50  // px
 const SPACING = 12
 
 function ButtonSet(props) {
-    const buttons = props.buttons.map(function (button, index) {
-        const wrap = inner => <span key={index} data-button={button}>{inner}</span>;
+    const buttons = props.buttons.map((button, index) => {
+        const velocity = props.velocities[index] || 1;
+        const wrap = inner => <span key={index} data-button={button}>
+            {inner}
+            {velocity < 1 && <span className="velocity">{velocity.toFixed(1).slice(1)}</span>}
+        </span>;
+        //TODO: Replace Lup, Rup, Cup, Dup, etc with arrows
         switch (button) {
             case "right":
             case "left":
@@ -120,6 +125,7 @@ class Input extends Component {
                 <ButtonSet
                     theme={this.props.theme}
                     buttons={this.props.button_set}
+                    velocities={this.props.button_velocities}
                 />
             </div>
         </div>;
@@ -182,9 +188,9 @@ function findInputRangeById(inputs, startInputId, endInputId) {
     const result = [];
     let foundFirst = false;
     for (let i = 0; i < inputs.length; i++) {
-        if (inputs[i].id == startInputId)
+        if (inputs[i].id === startInputId)
             foundFirst = true;
-        if (inputs[i].id == endInputId)
+        if (inputs[i].id === endInputId)
             break;
         if (foundFirst)
             result.push(inputs[i]);
@@ -270,6 +276,7 @@ class InputFeed extends Component {
                 'inputs': [...this.state.inputs, params],
                 'pendingInputCount': this.state.pendingInputCount + 1
             })
+            console.dir(params);
         } else if (type === 'anarchy_input_start') {
             //if(getRandomInt(0, 2) === 0) return  // test buggy core
             const newInputs = [...this.state.inputs]
@@ -332,6 +339,7 @@ class InputFeed extends Component {
                 user={input.user}
                 frames={input.frames}
                 button_set={input.button_set_labels || input.button_set}
+                button_velocities={input.button_set_velocities}
                 runBadgeNumber={input.run_badge_number}
                 pkmnBadgeNumber={input.pkmn_badge_number}
                 side={input.side}

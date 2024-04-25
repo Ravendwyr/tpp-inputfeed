@@ -198,6 +198,11 @@ span.arrow[data-arrow="left"]::before {
     content:'+';
 }
 
+.InputFeed:not([data-theme="retro"]) .velocity {
+    font-size: 0.8em;
+    vertical-align: baseline;
+}
+
 .User {
     display: inline-block;
     white-space: nowrap;
