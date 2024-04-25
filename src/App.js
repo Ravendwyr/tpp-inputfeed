@@ -24,14 +24,24 @@ const FRAME_DURATION = 1000 / 60
 const INPUT_HEIGHT = 50  // px
 const SPACING = 12
 
+const dirExp = /(.+?)(right|left|up|down)/i
+
 function ButtonSet(props) {
     const buttons = props.buttons.map((button, index) => {
+        let prefix = null;
+        if (props.theme !== "retro") {
+            const [m, p, b] = dirExp.exec(button) || [null, null, null];
+            if (m && p && b) {
+                prefix = p;
+                button = b;
+            }
+        }
         const velocity = props.velocities[index] || 1;
-        const wrap = inner => <span key={index} data-button={button}>
+        const wrap = inner => <span key={index} data-button={(prefix || "") + button}>
+            {prefix}
             {inner}
             {velocity < 1 && <span className="velocity">{velocity.toFixed(1).slice(1)}</span>}
         </span>;
-        //TODO: Replace Lup, Rup, Cup, Dup, etc with arrows
         switch (button) {
             case "right":
             case "left":
