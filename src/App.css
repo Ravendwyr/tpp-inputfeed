@@ -74,6 +74,13 @@ body {
 .underline[data-side="right"] .line {
     margin-left: var(--spacing);
 }
+.InputFeed:not([data-theme="retro"]) .Input:not([data-active="true"]) .user, .InputFeed:not([data-theme="retro"]) .Input:not([data-active="true"]) .action {
+    filter:
+        drop-shadow(0px 1px 0px #222222)
+        drop-shadow(0px -1px 0px #222222)
+        drop-shadow(1px 0px 0px #222222)
+        drop-shadow(-1px 0px 0px #222222);
+}
 .Input .user {
     text-align: center;
 }
